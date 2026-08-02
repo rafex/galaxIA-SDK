@@ -147,23 +147,27 @@ jobs:
             echo "→ Publicando a GitHub Packages..."
             npm publish -w "$pkg" --registry https://npm.pkg.github.com
 
-            echo "→ Publicando a npmjs.org..."
-            NPMJS_NAME=$(jq -r .name "$pkg/package.json" | sed 's|^@rafex/|@rafex_labs/|')
-            jq --arg n "$NPMJS_NAME" '
-              .name = $n
-              | .publishConfig = {"registry": "https://registry.npmjs.org", "@rafex_labs:registry": "https://registry.npmjs.org"}
-              | (if (.dependencies // {}) | has("@rafex/galaxia-fhs-protocol") then
-                   .dependencies["@rafex_labs/galaxia-fhs-protocol"] = .dependencies["@rafex/galaxia-fhs-protocol"]
-                   | del(.dependencies["@rafex/galaxia-fhs-protocol"])
-                 else . end)
-            ' "$pkg/package.json" > /tmp/pkg.json && mv /tmp/pkg.json "$pkg/package.json"
-            echo "npmjs name: $NPMJS_NAME — publishConfig: $(jq -c .publishConfig "$pkg/package.json")"
-            printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > /tmp/npmjs-userconfig
-            (cd "$pkg" && set -o pipefail && NPM_CONFIG_USERCONFIG=/tmp/npmjs-userconfig npm publish --registry https://registry.npmjs.org --access public 2>&1 | tee /tmp/npmjs-publish.log)
-            if ! grep -q "Publishing to https://registry.npmjs.org" /tmp/npmjs-publish.log; then
-              echo "::error::El publish a npmjs.org fue a otro registro — ver log arriba" >&2
-              exit 1
+            if [ -n "${NPM_TOKEN:-}" ]; then
+              echo "→ Publicando a npmjs.org..."
+              NPMJS_NAME=$(jq -r .name "$pkg/package.json" | sed 's|^@rafex/|@rafex_labs/|')
+              jq --arg n "$NPMJS_NAME" '
+                .name = $n
+                | .publishConfig = {"registry": "https://registry.npmjs.org", "@rafex_labs:registry": "https://registry.npmjs.org"}
+                | (if (.dependencies // {}) | has("@rafex/galaxia-fhs-protocol") then
+                     .dependencies["@rafex_labs/galaxia-fhs-protocol"] = .dependencies["@rafex/galaxia-fhs-protocol"]
+                     | del(.dependencies["@rafex/galaxia-fhs-protocol"])
+                   else . end)
+              ' "$pkg/package.json" > /tmp/pkg.json && mv /tmp/pkg.json "$pkg/package.json"
+              echo "npmjs name: $NPMJS_NAME — publishConfig: $(jq -c .publishConfig "$pkg/package.json")"
+              printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > /tmp/npmjs-userconfig
+              (cd "$pkg" && set -o pipefail && NPM_CONFIG_USERCONFIG=/tmp/npmjs-userconfig npm publish --registry https://registry.npmjs.org --access public 2>&1 | tee /tmp/npmjs-publish.log)
+              if ! grep -q "Publishing to https://registry.npmjs.org" /tmp/npmjs-publish.log; then
+                echo "::error::El publish a npmjs.org fue a otro registro — ver log arriba" >&2
+                exit 1
+              fi
+              git checkout -- "$pkg/package.json"
+            else
+              echo "→ NPM_TOKEN no configurado — omitiendo publish a npmjs.org (solo GitHub Packages)."
             fi
-            git checkout -- "$pkg/package.json"
             echo "::endgroup::"
           done
