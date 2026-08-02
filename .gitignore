@@ -43,3 +43,6 @@ Thumbs.db
 .opencode/worktrees.log
 .opencode/node_modules/
 session-ses_*.md
+
+# SpecNative — venv is generated; do not commit
+.specnative/.venv/
