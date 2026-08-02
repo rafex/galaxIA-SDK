@@ -50,6 +50,12 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://npm.pkg.github.com"
+          # GH_PACKAGES_TOKEN: PAT clásico con write:packages que tenga acceso
+          # al namespace @rafex (incluso si el paquete fue publicado primero
+          # desde otro repo). GITHUB_TOKEN sólo puede escribir paquetes
+          # publicados originalmente desde este repositorio. Ver:
+          # github.com/users/rafex/packages/npm/package/galaxia-fhs-protocol
+          # → Package settings → Connected repositories → add rafex/galaxIA-SDK
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v3
@@ -94,7 +100,10 @@ jobs:
         if: steps.changed.outputs.packages != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Para GitHub Packages: usa GH_PACKAGES_TOKEN (PAT con write:packages)
+          # si está definido; si no, intenta con GITHUB_TOKEN (solo funciona para
+          # paquetes publicados originalmente desde este repo).
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
