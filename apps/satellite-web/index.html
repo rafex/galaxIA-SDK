@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ephemeral Satellite — galaxIA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2e3148;
+      --text: #e2e4f0;
+      --muted: #8890b5;
+      --accent: #7c6af7;
+      --ok: #4ade80;
+      --err: #f87171;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    body { padding: 1.5rem; max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; color: var(--accent); }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+    .badge {
+      display: inline-block; padding: 0.15rem 0.6rem;
+      background: #1e1b4b; color: var(--accent);
+      border: 1px solid var(--accent); border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      margin-left: 0.5rem; vertical-align: middle;
+    }
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.25rem; }
+    input, select {
+      width: 100%; padding: 0.5rem 0.75rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 0.9rem;
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    .row { display: flex; gap: 0.75rem; }
+    .row .field { flex: 1; }
+    .field { margin-bottom: 0.75rem; }
+    button {
+      margin-top: 0.5rem; padding: 0.6rem 1.5rem;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { opacity: 0.85; }
+    .result {
+      margin-top: 0.75rem; padding: 0.75rem 1rem;
+      border-radius: 6px; font-size: 0.85rem;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); min-height: 2.5rem;
+    }
+    .result.ok { border-color: var(--ok); color: var(--ok); }
+    .result.err { border-color: var(--err); color: var(--err); }
+    .result.loading { animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    #curp17 {
+      font-family: monospace; font-size: 1.4rem; font-weight: 700;
+      letter-spacing: 0.15em; color: var(--ok);
+      margin-top: 0.5rem;
+    }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    footer { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <h1>Ephemeral Satellite <span class="badge">WASM</span></h1>
+  <p class="subtitle">Capacidades corriendo como WebAssembly real en un Web Worker — sin backend, sin servidor.</p>
+
+  <section>
+    <h2>Aritmética</h2>
+    <form id="math-form">
+      <div class="field">
+        <label for="math-expr">Expresión</label>
+        <input id="math-expr" type="text" placeholder="ej. (3 + 4) * 2 ^ 3" autocomplete="off" />
+      </div>
+      <button type="submit">Calcular</button>
+    </form>
+    <div id="math-result" class="result" role="status" aria-live="polite">Ingresa una expresión y presiona Calcular.</div>
+  </section>
+
+  <hr class="divider" />
+
+  <section>
+    <h2>Cómputo de CURP</h2>
+    <form id="curp-form">
+      <div class="row">
+        <div class="field">
+          <label for="nombre">Primer nombre</label>
+          <input id="nombre" type="text" placeholder="Concepción" value="Concepción" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="ap-pat">Apellido paterno</label>
+          <input id="ap-pat" type="text" placeholder="Salgado" value="Salgado" />
+        </div>
+        <div class="field">
+          <label for="ap-mat">Apellido materno (opcional)</label>
+          <input id="ap-mat" type="text" placeholder="Briseño" value="Briseño" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="year">Año de nac.</label>
+          <input id="year" type="number" min="1900" max="2099" value="1956" />
+        </div>
+        <div class="field">
+          <label for="month">Mes</label>
+          <input id="month" type="number" min="1" max="12" value="6" />
+        </div>
+        <div class="field">
+          <label for="day">Día</label>
+          <input id="day" type="number" min="1" max="31" value="26" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="sexo">Sexo (H / M)</label>
+          <select id="sexo">
+            <option value="M" selected>M — Mujer</option>
+            <option value="H">H — Hombre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="entidad">Entidad federativa</label>
+          <input id="entidad" type="text" placeholder="Distrito Federal" value="Distrito Federal" />
+        </div>
+      </div>
+      <button type="submit">Calcular CURP</button>
+    </form>
+    <div id="curp17" role="status" aria-live="polite" aria-label="CURP calculada"></div>
+    <div id="curp-full" class="result" style="display:none"></div>
+    <div id="curp-result" class="result" role="status" aria-live="polite">Rellena los datos y presiona Calcular CURP.</div>
+  </section>
+
+  <footer>galaxIA — Ephemeral Satellite concept — WASM vía AssemblyScript</footer>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

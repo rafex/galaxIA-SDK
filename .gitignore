@@ -1,0 +1,45 @@
+# Dependencias
+node_modules/
+
+# Artefactos de build
+dist/
+*.tsbuildinfo
+
+# WASM compilado (generado por asc)
+packages/satellite-capabilities-wasm/build/
+
+# Schema JSON generado por build:schemas (fhs-protocol)
+packages/fhs-protocol/schemas/
+
+# Entorno local
+.env
+.env.local
+.env.*.local
+
+# Identidad Ed25519 por nodo (DEC-0030)
+.fhs-identity*.pem
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+\#*\#
+.idea/
+.vscode/
+
+# Logs
+*.log
+/tmp/
+
+# opencode
+.opencode/sessions.db
+.opencode/sessions*db
+.opencode/sessions.db-shm
+.opencode/sessions.db-wal
+.opencode/worktrees/
+.opencode/worktrees.db
+.opencode/worktrees.log
+.opencode/node_modules/
+session-ses_*.md

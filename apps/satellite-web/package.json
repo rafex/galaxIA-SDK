@@ -1,0 +1,21 @@
+{
+  "name": "@rafex/galaxia-satellite-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Demo de Ephemeral Satellite: capacidades de aritmética y CURP corriendo como WASM real en un Web Worker del navegador, sin backend. Ver spec-native/DECISIONS.md (DEC-0086).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@assemblyscript/loader": "0.28.20",
+    "@types/node": "20.19.43",
+    "typescript": "5.9.3",
+    "vite": "8.1.3"
+  }
+}

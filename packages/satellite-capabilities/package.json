@@ -1,0 +1,36 @@
+{
+  "name": "@rafex/galaxia-satellite-capabilities",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Lógica pura y portable (sin APIs de Node) de las primeras capacidades pensadas para un Ephemeral Satellite (nodo WASM en navegador) — aritmética y cómputo de CURP.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafex/galaxIA-SDK.git",
+    "directory": "packages/satellite-capabilities"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,160 @@
+name: Publish SDK packages to GitHub Packages + npmjs.org
+
+# CD (entrega continua) — publica los 3 paquetes distribuibles del SDK a
+# GitHub Packages y a npmjs.org en cada push a main que toque alguno:
+#   @rafex/galaxia-fhs-protocol
+#   @rafex/galaxia-satellite-capabilities
+#   @rafex/galaxia-satellite-capabilities-wasm
+# Mismo patrón que galaxIA/publish-packages.yml (DEC-0061/DEC-0066).
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "packages/fhs-protocol/**"
+      - "packages/satellite-capabilities/**"
+      - "packages/satellite-capabilities-wasm/**"
+      - ".github/workflows/publish-packages.yml"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Paquete a publicar (`all` = los 3)"
+        type: choice
+        options:
+          - all
+          - packages/fhs-protocol
+          - packages/satellite-capabilities
+          - packages/satellite-capabilities-wasm
+        default: all
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: publish-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Instalar jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Instalar dependencias del workspace
+        run: npm ci
+
+      - name: Compilar satellite-capabilities
+        # Requerido antes de publicar satellite-capabilities-wasm (sus tests
+        # importan del paquete TS) y para verificar que dist/ existe.
+        run: npm run build -w packages/satellite-capabilities
+
+      - name: Determinar qué paquetes cambiaron
+        id: changed
+        run: |
+          ALL="packages/fhs-protocol packages/satellite-capabilities packages/satellite-capabilities-wasm"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.package }}" != "all" ]; then
+            TO_PROCESS="${{ inputs.package }}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TO_PROCESS="$ALL"
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+              TO_PROCESS="$ALL"
+            else
+              CHANGED_FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+              TO_PROCESS=""
+              for pkg in $ALL; do
+                if echo "$CHANGED_FILES" | grep -q "^$pkg/"; then
+                  TO_PROCESS="$TO_PROCESS $pkg"
+                fi
+              done
+            fi
+          fi
+          echo "Paquetes a procesar:$TO_PROCESS"
+          echo "packages=$TO_PROCESS" >> "$GITHUB_OUTPUT"
+
+      - name: Bump, verificar y publicar cada paquete cambiado
+        if: steps.changed.outputs.packages != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> "${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+
+          for pkg in ${{ steps.changed.outputs.packages }}; do
+            echo "::group::$pkg"
+
+            echo "→ Bump de versión si ya está publicada..."
+            case "$pkg" in
+              packages/fhs-protocol)              TARGET="protocol" ;;
+              packages/satellite-capabilities)    TARGET="capabilities" ;;
+              packages/satellite-capabilities-wasm) TARGET="wasm" ;;
+              *) echo "Workspace no soportado: $pkg" >&2; exit 1 ;;
+            esac
+            make "${TARGET}-bump"
+
+            if ! git diff --quiet -- "$pkg/package.json" package-lock.json; then
+              git add "$pkg/package.json" package-lock.json
+              PKG_NAME=$(node -p "require('./${pkg}/package.json').name")
+              git commit -m "chore: bump ${PKG_NAME} version [skip ci]"
+              git push
+            else
+              echo "Sin cambios de versión — nada que commitear."
+            fi
+
+            # WASM requiere compilar antes de verificar/publicar
+            if [ "$pkg" = "packages/satellite-capabilities-wasm" ]; then
+              echo "→ Compilando WASM..."
+              npm run build -w "$pkg"
+            fi
+
+            # Solo verificar dist/*.js para paquetes que los tienen
+            if [ "$pkg" != "packages/satellite-capabilities-wasm" ]; then
+              echo "→ Verificando contenido del paquete..."
+              make "${TARGET}-verify"
+            fi
+
+            echo "→ Publicando a GitHub Packages..."
+            npm publish -w "$pkg" --registry https://npm.pkg.github.com
+
+            echo "→ Publicando a npmjs.org..."
+            NPMJS_NAME=$(jq -r .name "$pkg/package.json" | sed 's|^@rafex/|@rafex_labs/|')
+            jq --arg n "$NPMJS_NAME" '
+              .name = $n
+              | .publishConfig = {"registry": "https://registry.npmjs.org", "@rafex_labs:registry": "https://registry.npmjs.org"}
+              | (if (.dependencies // {}) | has("@rafex/galaxia-fhs-protocol") then
+                   .dependencies["@rafex_labs/galaxia-fhs-protocol"] = .dependencies["@rafex/galaxia-fhs-protocol"]
+                   | del(.dependencies["@rafex/galaxia-fhs-protocol"])
+                 else . end)
+            ' "$pkg/package.json" > /tmp/pkg.json && mv /tmp/pkg.json "$pkg/package.json"
+            echo "npmjs name: $NPMJS_NAME — publishConfig: $(jq -c .publishConfig "$pkg/package.json")"
+            printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > /tmp/npmjs-userconfig
+            (cd "$pkg" && set -o pipefail && NPM_CONFIG_USERCONFIG=/tmp/npmjs-userconfig npm publish --registry https://registry.npmjs.org --access public 2>&1 | tee /tmp/npmjs-publish.log)
+            if ! grep -q "Publishing to https://registry.npmjs.org" /tmp/npmjs-publish.log; then
+              echo "::error::El publish a npmjs.org fue a otro registro — ver log arriba" >&2
+              exit 1
+            fi
+            git checkout -- "$pkg/package.json"
+            echo "::endgroup::"
+          done

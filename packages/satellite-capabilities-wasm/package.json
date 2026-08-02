@@ -1,0 +1,31 @@
+{
+  "name": "@rafex/galaxia-satellite-capabilities-wasm",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Puerto AssemblyScript (WASM real) de satellite-capabilities — aritmética y cómputo de CURP, pensado para un Ephemeral Satellite (nodo WASM en navegador).",
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafex/galaxIA-SDK.git",
+    "directory": "packages/satellite-capabilities-wasm"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "asc assembly/index.ts --outFile build/satellite-capabilities.wasm --optimize --exportRuntime",
+    "typecheck": "tsc --noEmit && asc assembly/index.ts --noEmit",
+    "lint": "eslint src/",
+    "test": "npm run build && vitest run"
+  },
+  "devDependencies": {
+    "@assemblyscript/loader": "0.28.20",
+    "@rafex/galaxia-satellite-capabilities": "0.1.0",
+    "@types/node": "20.19.43",
+    "assemblyscript": "0.28.20",
+    "typescript": "5.9.3"
+  }
+}

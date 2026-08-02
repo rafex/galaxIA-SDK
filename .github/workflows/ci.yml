@@ -1,0 +1,83 @@
+name: CI
+
+# Validación de Pull Requests.
+# No publica ni despliega nada — solo bloquea el merge si lint, typecheck, test o build fallan.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Compilar satellite-capabilities
+        # dist/ está gitignored — satellite-capabilities-wasm depende del dist/
+        # de satellite-capabilities (eslint parserOptions.projectService lo
+        # resuelve contra dist/). Sin este paso, lint falla en checkout limpio.
+        run: npm run build -w packages/satellite-capabilities
+      - run: npm run lint --workspaces
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Compilar satellite-capabilities
+        run: npm run build -w packages/satellite-capabilities
+      - run: npm run typecheck --workspaces
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Instalar dependencias
+        # El lockfile se genera en macOS ARM — no incluye binarios nativos
+        # para linux-x64 (DEC-0042). Se borra y reinstala.
+        run: |
+          rm -f package-lock.json
+          npm install
+      - name: Compilar satellite-capabilities
+        run: npm run build -w packages/satellite-capabilities
+      - run: npm run test --workspaces
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Instalar dependencias
+        run: |
+          rm -f package-lock.json
+          npm install
+      - name: Build (todos los workspaces en orden)
+        run: |
+          npm run build -w packages/fhs-protocol
+          npm run build -w packages/satellite-capabilities
+          npm run build -w packages/satellite-capabilities-wasm
+          npm run build -w apps/satellite-web

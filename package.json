@@ -1,0 +1,33 @@
+{
+  "name": "galaxia-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "galaxIA SDK — TypeScript/WASM client libraries for the FHS (Federation of Sovereign Horizons) protocol.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/fhs-protocol && npm run build -w packages/satellite-capabilities && npm run build -w packages/satellite-capabilities-wasm && npm run build -w apps/satellite-web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@assemblyscript/loader": "0.28.20",
+    "@types/node": "20.19.43",
+    "@typescript-eslint/eslint-plugin": "8.63.0",
+    "@typescript-eslint/parser": "8.63.0",
+    "assemblyscript": "0.28.20",
+    "eslint": "10.6.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.63.0",
+    "vitest": "4.1.10",
+    "vite": "8.1.3"
+  }
+}

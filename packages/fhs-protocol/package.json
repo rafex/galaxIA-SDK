@@ -1,0 +1,39 @@
+{
+  "name": "@rafex/galaxia-fhs-protocol",
+  "version": "0.1.21",
+  "private": false,
+  "type": "module",
+  "description": "Contratos compartidos del protocolo FHS v0.1.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafex/galaxIA-SDK.git",
+    "directory": "packages/fhs-protocol"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "tsc && npm run build:schemas",
+    "build:schemas": "ts-json-schema-generator -p src/index.ts --tsconfig tsconfig.json -t '*' --no-type-check -o schemas/fhs-protocol.schema.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "ts-json-schema-generator": "2.9.0",
+    "typescript": "5.9.3"
+  }
+}
