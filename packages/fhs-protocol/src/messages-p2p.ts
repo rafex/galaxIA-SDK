@@ -136,7 +136,7 @@ export interface HandshakeAckMessage {
   trustLevel: TrustLevel;
 }
 
-export interface PulseMessage {}
+export type PulseMessage = Record<string, never>;
 
 export interface PulseAckMessage {
   serverTimestamp: number;
