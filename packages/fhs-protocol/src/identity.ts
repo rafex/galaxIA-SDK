@@ -155,9 +155,121 @@ export function welcomeSignaturePayload(registryId: string, timestamp: number): 
  * Payload de invocación (`chat.request`/`tool.call`/`tool.list`): el
  * invocador (Navigator u otro agente) prueba su identidad ante el provider —
  * sin esto, cualquier peer de la LAN podía consumir el LLM/tools de un nodo.
+ * @deprecated Modelo WebSocket v0.1. En el modelo P2P la autenticación viene
+ * de Envelope.signature — usa envelopeSignaturePayload.
  */
 export function invokeSignaturePayload(callerId: string, missionId: string, timestamp: number): string {
   return `${callerId}:${missionId}:${timestamp}`;
+}
+
+// ── Payloads de firma P2P (DEC-P2P-001, DEC-0086, DEC-0087) ─────────────────
+
+/**
+ * Payload de firma del Envelope (stream directo /fhs/v1/0.1.0).
+ * sha256(message_id:source:dest:timestamp:payload_bytes_hex)
+ */
+export function envelopeSignaturePayload(
+  messageId: string,
+  sourcePeerId: string,
+  destPeerId: string,
+  timestamp: number,
+  payloadBytesHex: string,
+): string {
+  return `${messageId}:${sourcePeerId}:${destPeerId}:${timestamp}:${payloadBytesHex}`;
+}
+
+/**
+ * Payload de firma de NodeAdvertiseMessage (GossipSub fhs/v1/nodes/advertise).
+ * did + sha256(beacon) + timestamp + ttlSeconds
+ */
+export function nodeAdvertiseSignaturePayload(
+  did: string,
+  beaconSha256Hex: string,
+  timestamp: number,
+  ttlSeconds: number,
+): string {
+  return `${did}:${beaconSha256Hex}:${timestamp}:${ttlSeconds}`;
+}
+
+/**
+ * Payload de firma de MissionOfferMessage (GossipSub fhs/v1/missions/offer).
+ * missionId:navigatorDid:missionType:bidDeadlineMs:timestamp
+ */
+export function missionOfferSignaturePayload(
+  missionId: string,
+  navigatorDid: string,
+  missionType: string,
+  bidDeadlineMs: number,
+  timestamp: number,
+): string {
+  return `${missionId}:${navigatorDid}:${missionType}:${bidDeadlineMs}:${timestamp}`;
+}
+
+/**
+ * Payload de firma de MissionBidMessage (GossipSub fhs/v1/missions/bid).
+ * missionId:providerDid:capabilities(sorted):timestamp
+ */
+export function missionBidSignaturePayload(
+  missionId: string,
+  providerDid: string,
+  offeredCapabilities: string[],
+  timestamp: number,
+): string {
+  return `${missionId}:${providerDid}:${[...offeredCapabilities].sort().join(",")}:${timestamp}`;
+}
+
+/**
+ * Payload de firma de MissionAssignMessage (GossipSub fhs/v1/missions/assign).
+ * missionId:navigatorDid:assignedProvider:timestamp
+ */
+export function missionAssignSignaturePayload(
+  missionId: string,
+  navigatorDid: string,
+  assignedProvider: string,
+  timestamp: number,
+): string {
+  return `${missionId}:${navigatorDid}:${assignedProvider}:${timestamp}`;
+}
+
+/**
+ * Payload de firma de DhtBeaconRecord (DHT Kademlia).
+ * did:sha256(beacon):publishedAt:expiresAt
+ */
+export function dhtBeaconSignaturePayload(
+  did: string,
+  beaconSha256Hex: string,
+  publishedAt: number,
+  expiresAt: number,
+): string {
+  return `${did}:${beaconSha256Hex}:${publishedAt}:${expiresAt}`;
+}
+
+/**
+ * Payload de firma de ReputationUpdateMessage (GossipSub fhs/v1/reputation/update).
+ * missionId:providerDid:navigatorDid:success:timestamp
+ */
+export function reputationUpdateSignaturePayload(
+  missionId: string,
+  providerDid: string,
+  navigatorDid: string,
+  success: boolean,
+  timestamp: number,
+): string {
+  return `${missionId}:${providerDid}:${navigatorDid}:${success}:${timestamp}`;
+}
+
+/**
+ * Payload de firma de DelegationToken (Ephemeral Satellite SPEC-EPHSAT-0001).
+ * issuer:subject:wasmHash:capabilities(sorted):expiresAt
+ */
+export function delegationTokenSignaturePayload(
+  issuer: string,
+  subject: string,
+  wasmHash: string,
+  capabilities: string[],
+  expiresAt: number,
+): string {
+  return `${issuer}:${subject}:${wasmHash}:${[...capabilities].sort().join(",")}:${expiresAt}`;
 }
 
 /** Firma un payload (ej. `${providerId}:${timestamp}`) con la clave privada del nodo. */

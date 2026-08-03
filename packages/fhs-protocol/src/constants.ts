@@ -1,8 +1,42 @@
 /**
- * Protocolo FHS v0.1 — Constantes compartidas.
+ * Protocolo FHS — Constantes compartidas (modelo WebSocket v0.1 + modelo P2P v1).
  */
 
 export const FHS_VERSION = "0.1";
+
+// ── Protocolo FHS P2P (DEC-P2P-001) ──────────────────────────────────────────
+
+/** Versión del protocolo FHS P2P. */
+export const FHS_P2P_VERSION = "1";
+
+/** Protocolo libp2p para stream directo entre peers FHS. */
+export const FHS_STREAM_PROTOCOL = "/fhs/v1/0.1.0";
+
+// Tópicos GossipSub
+export const TOPIC_NODES_ADVERTISE   = "fhs/v1/nodes/advertise";
+export const TOPIC_MISSIONS_OFFER    = "fhs/v1/missions/offer";
+export const TOPIC_MISSIONS_BID      = "fhs/v1/missions/bid";
+export const TOPIC_MISSIONS_ASSIGN   = "fhs/v1/missions/assign";
+export const TOPIC_REPUTATION_UPDATE = "fhs/v1/reputation/update";
+
+/** Prefijo de clave DHT para registros de reputación. */
+export const DHT_REPUTATION_KEY_PREFIX = "reputation/";
+
+// Temporizadores P2P
+/** Intervalo entre NodeAdvertiseMessage publicados (ms). */
+export const NODE_ADVERTISE_INTERVAL_MS = 30_000;
+/** TTL declarado en NodeAdvertiseMessage (segundos). */
+export const NODE_ADVERTISE_TTL_SECONDS = 60;
+/** Edad máxima de lastSeen antes de purgar un peer de la caché local (ms). */
+export const PEER_CACHE_PURGE_MS = 90_000;
+/** TTL de DhtBeaconRecord en la DHT (ms). */
+export const DHT_BEACON_TTL_MS = 24 * 60 * 60 * 1_000;
+/** Tiempo máximo de espera para recibir bids tras publicar una oferta (ms). */
+export const BID_DEADLINE_MS = 200;
+/** Intervalo de PulseMessage mientras un stream está activo (ms). */
+export const PULSE_INTERVAL_MS = 30_000;
+/** Tiempo máximo sin PulseAck antes de considerar al peer perdido (ms). */
+export const PULSE_TIMEOUT_MS = 90_000;
 
 /**
  * Unidad canónica de todo `timestamp` del protocolo: **milisegundos** desde

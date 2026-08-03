@@ -1,5 +1,9 @@
 /**
  * Mensajes del protocolo WebSocket entre proveedores y Registry FHS v0.1.
+ * @deprecated Modelo centralizado WebSocket (hello/register/ping).
+ * Reemplazado por messages-p2p.ts en el modelo P2P (DEC-P2P-001, DEC-0088).
+ * Todos los tipos de este archivo están marcados como deprecated y se
+ * eliminarán una vez que todas las apps migren al ciclo P2P completo.
  */
 
 import type { Beacon } from "./manifest.js";
