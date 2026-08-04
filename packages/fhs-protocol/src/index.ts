@@ -5,7 +5,6 @@ export * from "./constants.js";
 export * from "./types.js";
 export * from "./manifest.js";
 export * from "./llm.js";
-export * from "./sse.js";
 export * from "./identity.js";
 export * from "./wire.js";
 // Contratos generados: acceso explícito para impedir colisiones con modelos locales.

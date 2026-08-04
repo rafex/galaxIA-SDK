@@ -39,7 +39,7 @@ export interface EndpointInfo {
   /** URL base del servicio. */
   url: string;
   /** Transporte MCP cuando aplica. */
-  transport?: "streamable-http" | "stdio" | "sse";
+  transport?: "streamable-http" | "stdio";
 }
 
 export interface Signal {
