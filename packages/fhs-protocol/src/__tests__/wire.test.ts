@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   ArtifactRefSchema,
+  AttachmentDecisionMessageSchema,
   DynamicValueSchema,
   EnvelopeSchema,
   InlineArtifactSchema,
+  KbRecommendedMessageSchema,
+  OcrExtractedMessageSchema,
   PingMessageSchema,
 } from "../generated/fhs-protocol_pb.js";
 import {
@@ -77,5 +80,39 @@ describe("FHS Protobuf wire codec", () => {
     if (decoded.kind.value.transport.case !== "inline") return;
     expect([...decoded.kind.value.transport.value.data]).toEqual([1, 2, 3]);
     expect(decoded.kind.value.transport.value.filename).toBe("scan.png");
+  });
+
+  it("serializa el ciclo Portal de adjunto y decisión sin JSON", () => {
+    const extracted = newEnvelope({
+      sourcePeerId: "did:key:zNavigator",
+      payload: {
+        case: "ocrExtracted",
+        value: create(OcrExtractedMessageSchema, { missionId: "m-1", filename: "scan.pdf", text: "texto" }),
+      },
+    });
+    const recommendation = newEnvelope({
+      sourcePeerId: "did:key:zNavigator",
+      payload: {
+        case: "kbRecommended",
+        value: create(KbRecommendedMessageSchema, {
+          missionId: "m-1",
+          candidates: [{ providerId: "did:key:zKb", providerName: "KB", description: "documentos" }],
+          chosenByLlm: false,
+        }),
+      },
+    });
+    const decision = newEnvelope({
+      sourcePeerId: "did:key:zPortal",
+      payload: {
+        case: "attachmentDecision",
+        value: create(AttachmentDecisionMessageSchema, { missionId: "m-1", use: true }),
+      },
+    });
+
+    expect(decodeEnvelopeFrame(encodeEnvelopeFrame(extracted)).envelope.payload.case).toBe("ocrExtracted");
+    expect(decodeEnvelopeFrame(encodeEnvelopeFrame(recommendation)).envelope.payload.case).toBe("kbRecommended");
+    const decodedDecision = decodeEnvelopeFrame(encodeEnvelopeFrame(decision)).envelope;
+    expect(decodedDecision.payload.case).toBe("attachmentDecision");
+    if (decodedDecision.payload.case === "attachmentDecision") expect(decodedDecision.payload.value.use).toBe(true);
   });
 });
