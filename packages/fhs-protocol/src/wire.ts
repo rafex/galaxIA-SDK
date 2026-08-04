@@ -11,7 +11,10 @@ import {
   type Envelope,
 } from "./generated/fhs-protocol_pb.js";
 
-/** Límite defensivo para un frame FHS antes de asignar memoria. */
+/**
+ * Límite defensivo para un frame FHS antes de asignar memoria.
+ * Este codec es el único punto de entrada del SDK para el wire Protobuf/LPP.
+ */
 export const MAX_FHS_FRAME_BYTES = 16 * 1024 * 1024;
 
 export interface DecodedFrame {
