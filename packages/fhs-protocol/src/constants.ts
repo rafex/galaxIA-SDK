@@ -1,5 +1,5 @@
 /**
- * Protocolo FHS — Constantes compartidas (modelo WebSocket v0.1 + modelo P2P v1).
+ * Protocolo FHS — Constantes compartidas del modelo P2P v1.
  */
 
 export const FHS_VERSION = "0.1";
@@ -103,4 +103,4 @@ export const FHS_ERROR_CODES = {
   OVERLOADED: "OVERLOADED",
 } as const;
 
-export type FhsErrorCode = (typeof FHS_ERROR_CODES)[keyof typeof FHS_ERROR_CODES];
+export type LocalFhsErrorCode = (typeof FHS_ERROR_CODES)[keyof typeof FHS_ERROR_CODES];

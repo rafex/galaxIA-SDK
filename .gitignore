@@ -8,7 +8,7 @@ dist/
 # WASM compilado (generado por asc)
 packages/satellite-capabilities-wasm/build/
 
-# Schema JSON generado por build:schemas (fhs-protocol)
+# Los contratos wire FHS se generan desde Protobuf; no se publican JSON schemas.
 packages/fhs-protocol/schemas/
 
 # Entorno local
