@@ -1,6 +1,6 @@
 {
   "name": "@rafex/galaxia-fhs-protocol",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "private": false,
   "type": "module",
   "description": "Contratos compartidos del protocolo FHS v0.1.",
