@@ -3,7 +3,6 @@ import {
   fromBinary,
   toBinary,
   type DescMessage,
-  type Message,
   type MessageShape,
 } from "@bufbuild/protobuf";
 import {
