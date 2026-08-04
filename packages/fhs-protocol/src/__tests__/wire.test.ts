@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { create, toBinary } from "@bufbuild/protobuf";
+import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
+  ArtifactRefSchema,
+  DynamicValueSchema,
   EnvelopeSchema,
+  InlineArtifactSchema,
   PingMessageSchema,
 } from "../generated/fhs-protocol_pb.js";
 import {
@@ -49,5 +52,30 @@ describe("FHS Protobuf wire codec", () => {
     expect(() => decodeLengthPrefixed(new Uint8Array([...prefix, ...oversized]))).toThrow(
       "demasiado grande",
     );
+  });
+
+  it("serializa ArtifactRef como oneof Protobuf dentro de DynamicValue", () => {
+    const value = create(DynamicValueSchema, {
+      kind: {
+        case: "artifactRef",
+        value: create(ArtifactRefSchema, {
+          transport: {
+            case: "inline",
+            value: create(InlineArtifactSchema, {
+              data: Uint8Array.from([1, 2, 3]),
+              filename: "scan.png",
+            }),
+          },
+        }),
+      },
+    });
+
+    const decoded = fromBinary(DynamicValueSchema, toBinary(DynamicValueSchema, value));
+    expect(decoded.kind.case).toBe("artifactRef");
+    if (decoded.kind.case !== "artifactRef") return;
+    expect(decoded.kind.value.transport.case).toBe("inline");
+    if (decoded.kind.value.transport.case !== "inline") return;
+    expect([...decoded.kind.value.transport.value.data]).toEqual([1, 2, 3]);
+    expect(decoded.kind.value.transport.value.filename).toBe("scan.png");
   });
 });

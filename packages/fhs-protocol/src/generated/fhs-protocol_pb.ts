@@ -38,7 +38,7 @@ import type { Message as Message$1 } from "@bufbuild/protobuf";
  * Describes the file fhs-protocol.proto.
  */
 export const file_fhs_protocol: GenFile = /*@__PURE__*/
-  fileDesc("ChJmaHMtcHJvdG9jb2wucHJvdG8SBmZocy52MSLdDQoIRW52ZWxvcGUSEgoKbWVzc2FnZV9pZBgBIAEoCRIWCg5zb3VyY2VfcGVlcl9pZBgCIAEoCRIUCgxkZXN0X3BlZXJfaWQYAyABKAkSEQoJdGltZXN0YW1wGAQgASgDEg8KB3ZlcnNpb24YBSABKAkSEQoJc2lnbmF0dXJlGAYgASgMEi0KCWhhbmRzaGFrZRgKIAEoCzIYLmZocy52MS5IYW5kc2hha2VNZXNzYWdlSAASNAoNaGFuZHNoYWtlX2FjaxgLIAEoCzIbLmZocy52MS5IYW5kc2hha2VBY2tNZXNzYWdlSAASIwoEcGluZxgMIAEoCzITLmZocy52MS5QaW5nTWVzc2FnZUgAEiMKBHBvbmcYDSABKAsyEy5maHMudjEuUG9uZ01lc3NhZ2VIABIlCgVlcnJvchgOIAEoCzIULmZocy52MS5FcnJvck1lc3NhZ2VIABIyCgxjaGF0X3JlcXVlc3QYFCABKAsyGi5maHMudjEuQ2hhdFJlcXVlc3RNZXNzYWdlSAASMAoLY2hhdF9jYW5jZWwYFSABKAsyGS5maHMudjEuQ2hhdENhbmNlbE1lc3NhZ2VIABIuCgpjaGF0X2RlbHRhGBYgASgLMhguZmhzLnYxLkNoYXREZWx0YU1lc3NhZ2VIABI2Cg5jaGF0X2NvbXBsZXRlZBgXIAEoCzIcLmZocy52MS5DaGF0Q29tcGxldGVkTWVzc2FnZUgAEi4KCmNoYXRfZXJyb3IYGCABKAsyGC5maHMudjEuQ2hhdEVycm9yTWVzc2FnZUgAEjIKDGRpc3BhdGNoX2FjaxgZIAEoCzIaLmZocy52MS5EaXNwYXRjaEFja01lc3NhZ2VIABIzCgl0b29sX2NhbGwYHiABKAsyHi5maHMudjEuVG9vbENhbGxSZXF1ZXN0TWVzc2FnZUgAEjAKC3Rvb2xfY2FuY2VsGB8gASgLMhkuZmhzLnYxLlRvb2xDYW5jZWxNZXNzYWdlSAASNAoLdG9vbF9yZXN1bHQYICABKAsyHS5maHMudjEuVG9vbENhbGxSZXN1bHRNZXNzYWdlSAASMgoKdG9vbF9lcnJvchghIAEoCzIcLmZocy52MS5Ub29sQ2FsbEVycm9yTWVzc2FnZUgAEjMKCXRvb2xfbGlzdBgiIAEoCzIeLmZocy52MS5Ub29sTGlzdFJlcXVlc3RNZXNzYWdlSAASOQoOdG9vbF9saXN0X3Jlc3AYIyABKAsyHy5maHMudjEuVG9vbExpc3RSZXNwb25zZU1lc3NhZ2VIABI2Cg5ub2RlX2FkdmVydGlzZRgoIAEoCzIcLmZocy52MS5Ob2RlQWR2ZXJ0aXNlTWVzc2FnZUgAEjQKDW1pc3Npb25fb2ZmZXIYMiABKAsyGy5maHMudjEuTWlzc2lvbk9mZmVyTWVzc2FnZUgAEjAKC21pc3Npb25fYmlkGDMgASgLMhkuZmhzLnYxLk1pc3Npb25CaWRNZXNzYWdlSAASNgoObWlzc2lvbl9hc3NpZ24YNCABKAsyHC5maHMudjEuTWlzc2lvbkFzc2lnbk1lc3NhZ2VIABItCgpkaHRfYmVhY29uGDUgASgLMhcuZmhzLnYxLkRodEJlYWNvblJlY29yZEgAEjUKDmRodF9yZXB1dGF0aW9uGDYgASgLMhsuZmhzLnYxLkRodFJlcHV0YXRpb25SZWNvcmRIABIwCgthZ2VudF9zdGFydBg8IAEoCzIZLmZocy52MS5BZ2VudFN0YXJ0TWVzc2FnZUgAEjIKDGFnZW50X3N0YXR1cxg9IAEoCzIaLmZocy52MS5BZ2VudFN0YXR1c01lc3NhZ2VIABI0Cg1zdGFyX3NlbGVjdGVkGD4gASgLMhsuZmhzLnYxLlN0YXJTZWxlY3RlZE1lc3NhZ2VIABI0Cg10b29sX3NlbGVjdGVkGD8gASgLMhsuZmhzLnYxLlRvb2xTZWxlY3RlZE1lc3NhZ2VIABI4Cg9hc3Npc3RhbnRfZGVsdGEYQCABKAsyHS5maHMudjEuQXNzaXN0YW50RGVsdGFNZXNzYWdlSAASQAoTYXNzaXN0YW50X2NvbXBsZXRlZBhBIAEoCzIhLmZocy52MS5Bc3Npc3RhbnRDb21wbGV0ZWRNZXNzYWdlSAASOgoQbWlzc2lvbl9mZWVkYmFjaxhGIAEoCzIeLmZocy52MS5NaXNzaW9uRmVlZGJhY2tNZXNzYWdlSAASPAoRcmVwdXRhdGlvbl91cGRhdGUYUCABKAsyHy5maHMudjEuUmVwdXRhdGlvblVwZGF0ZU1lc3NhZ2VIAEIJCgdwYXlsb2FkIusBChBQcm92aWRlcklkZW50aXR5EgoKAmlkGAEgASgJEiIKBHR5cGUYAiABKA4yFC5maHMudjEuUHJvdmlkZXJUeXBlEiYKCnZpc2liaWxpdHkYAyABKA4yEi5maHMudjEuVmlzaWJpbGl0eRIMCgRuYW1lGAQgASgJEhMKC2Rlc2NyaXB0aW9uGAUgASgJEg4KBnJlZ2lvbhgGIAEoCRIMCgR0YWdzGAcgAygJEhEKCWVwaGVtZXJhbBgIIAEoCBIUCgxkZWxlZ2F0ZWRfYnkYCSABKAkSFQoNbGVhc2Vfc2Vjb25kcxgKIAEoBSIdCghFbmRwb2ludBIRCgltdWx0aWFkZHIYASABKAkicAoKRGV2aWNlSW5mbxITCgtmaW5nZXJwcmludBgBIAEoCRIoCghwbGF0Zm9ybRgCIAEoDjIWLmZocy52MS5EZXZpY2VQbGF0Zm9ybRIjCgl3YXNtX3RpZXIYAyABKA4yEC5maHMudjEuV2FzbVRpZXIiZwoNUHJpdmFjeVBvbGljeRIqCglyZXRlbnRpb24YASABKA4yFy5maHMudjEuUmV0ZW50aW9uUG9saWN5EhQKDGp1cmlzZGljdGlvbhgCIAEoCRIUCgx0cmFpbmluZ191c2UYAyABKAgiLwoMQXZhaWxhYmlsaXR5Eh8KF21heF9jb25jdXJyZW50X3JlcXVlc3RzGAEgASgFIqMBCg9Nb2RlbERlc2NyaXB0b3ISCgoCaWQYASABKAkSFAoMZGlzcGxheV9uYW1lGAIgASgJEi0KDGNhcGFiaWxpdGllcxgDIAMoDjIXLmZocy52MS5Nb2RlbENhcGFiaWxpdHkSFgoOY29udGV4dF93aW5kb3cYBCABKAUSEQoJbGFuZ3VhZ2VzGAUgAygJEhQKDHRvb2xfY2FsbGluZxgGIAEoCCKPAQoUQ2FwYWJpbGl0eURlc2NyaXB0b3ISCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIZChFpbnB1dF9tZWRpYV90eXBlcxgEIAMoCRIaChJvdXRwdXRfbWVkaWFfdHlwZXMYBSADKAkSEQoJbGFuZ3VhZ2VzGAYgAygJIkAKD0FnZW50Q2FwYWJpbGl0eRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJIpADCgZCZWFjb24SEwoLZmhzX3ZlcnNpb24YASABKAkSKgoIcHJvdmlkZXIYAiABKAsyGC5maHMudjEuUHJvdmlkZXJJZGVudGl0eRIiCghlbmRwb2ludBgDIAEoCzIQLmZocy52MS5FbmRwb2ludBIiCgZkZXZpY2UYBCABKAsyEi5maHMudjEuRGV2aWNlSW5mbxImCgdwcml2YWN5GAUgASgLMhUuZmhzLnYxLlByaXZhY3lQb2xpY3kSKgoMYXZhaWxhYmlsaXR5GAYgASgLMhQuZmhzLnYxLkF2YWlsYWJpbGl0eRInCgZtb2RlbHMYByADKAsyFy5maHMudjEuTW9kZWxEZXNjcmlwdG9yEjIKDGNhcGFiaWxpdGllcxgIIAMoCzIcLmZocy52MS5DYXBhYmlsaXR5RGVzY3JpcHRvchIzChJhZ2VudF9jYXBhYmlsaXRpZXMYCSADKAsyFy5maHMudjEuQWdlbnRDYXBhYmlsaXR5EhcKD3ByZWZlcnJlZF9zdGFycxgKIAMoCSLpAQoMRHluYW1pY1ZhbHVlEhcKDWJvb2xlYW5fdmFsdWUYASABKAhIABIXCg1pbnRlZ2VyX3ZhbHVlGAIgASgDSAASFgoMbnVtYmVyX3ZhbHVlGAMgASgBSAASFgoMc3RyaW5nX3ZhbHVlGAQgASgJSAASFQoLYnl0ZXNfdmFsdWUYBSABKAxIABItCgxvYmplY3RfdmFsdWUYBiABKAsyFS5maHMudjEuRHluYW1pY09iamVjdEgAEikKCmxpc3RfdmFsdWUYByABKAsyEy5maHMudjEuRHluYW1pY0xpc3RIAEIGCgRraW5kIocBCg1EeW5hbWljT2JqZWN0EjEKBmZpZWxkcxgBIAMoCzIhLmZocy52MS5EeW5hbWljT2JqZWN0LkZpZWxkc0VudHJ5GkMKC0ZpZWxkc0VudHJ5EgsKA2tleRgBIAEoCRIjCgV2YWx1ZRgCIAEoCzIULmZocy52MS5EeW5hbWljVmFsdWU6AjgBIjMKC0R5bmFtaWNMaXN0EiQKBnZhbHVlcxgBIAMoCzIULmZocy52MS5EeW5hbWljVmFsdWUi5AEKD1Rvb2xJbnB1dFNjaGVtYRIMCgR0eXBlGAEgASgJEhMKC2Rlc2NyaXB0aW9uGAIgASgJEjsKCnByb3BlcnRpZXMYAyADKAsyJy5maHMudjEuVG9vbElucHV0U2NoZW1hLlByb3BlcnRpZXNFbnRyeRIQCghyZXF1aXJlZBgEIAMoCRITCgtlbnVtX3ZhbHVlcxgFIAMoCRpKCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEiYKBXZhbHVlGAIgASgLMhcuZmhzLnYxLlRvb2xJbnB1dFNjaGVtYToCOAEikAEKEEhhbmRzaGFrZU1lc3NhZ2USEwoLZmhzX3ZlcnNpb24YASABKAkSFAoMbGlzdGVuX2FkZHJzGAIgAygJEh4KBmJlYWNvbhgDIAEoCzIOLmZocy52MS5CZWFjb24SMQoQZGVsZWdhdGlvbl90b2tlbhgEIAEoCzIXLmZocy52MS5EZWxlZ2F0aW9uVG9rZW4iowEKE0hhbmRzaGFrZUFja01lc3NhZ2USEwoLZmhzX3ZlcnNpb24YASABKAkSFQoNbGVhc2Vfc2Vjb25kcxgCIAEoBRIZChFoZWFydGJlYXRfc2Vjb25kcxgDIAEoBRIVCg1sZWFzZV9leHBpcmVzGAQgASgDEhkKEWFjY2VwdGVkX3NlcnZpY2VzGAUgASgFEhMKC3RydXN0X2xldmVsGAYgASgJIg0KC1BpbmdNZXNzYWdlIicKC1BvbmdNZXNzYWdlEhgKEHNlcnZlcl90aW1lc3RhbXAYASABKAMiQwoMRXJyb3JNZXNzYWdlEiIKBGNvZGUYASABKA4yFC5maHMudjEuRmhzRXJyb3JDb2RlEg8KB21lc3NhZ2UYAiABKAkiZAoHTWVzc2FnZRIMCgRyb2xlGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSFAoMdG9vbF9jYWxsX2lkGAMgASgJEiQKCnRvb2xfY2FsbHMYBCADKAsyEC5maHMudjEuVG9vbENhbGwiYgoOVG9vbERlZmluaXRpb24SDAoEbmFtZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCRItCgxpbnB1dF9zY2hlbWEYAyABKAsyFy5maHMudjEuVG9vbElucHV0U2NoZW1hIlAKCFRvb2xDYWxsEgoKAmlkGAEgASgJEgwKBHR5cGUYAiABKAkSKgoIZnVuY3Rpb24YAyABKAsyGC5maHMudjEuVG9vbENhbGxGdW5jdGlvbiJJChBUb29sQ2FsbEZ1bmN0aW9uEgwKBG5hbWUYASABKAkSJwoJYXJndW1lbnRzGAIgASgLMhQuZmhzLnYxLkR5bmFtaWNWYWx1ZSKBAQoSQ2hhdFJlcXVlc3RNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSIQoIbWVzc2FnZXMYAiADKAsyDy5maHMudjEuTWVzc2FnZRIlCgV0b29scxgDIAMoCzIWLmZocy52MS5Ub29sRGVmaW5pdGlvbhINCgVtb2RlbBgEIAEoCSInChFDaGF0Q2FuY2VsTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJIjUKEENoYXREZWx0YU1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRINCgVkZWx0YRgCIAEoCSJhChRDaGF0Q29tcGxldGVkTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSJAoKdG9vbF9jYWxscxgDIAMoCzIQLmZocy52MS5Ub29sQ2FsbCI1ChBDaGF0RXJyb3JNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSDQoFZXJyb3IYAiABKAkiOwoSRGlzcGF0Y2hBY2tNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSEQoJcXVldWVkX2F0GAIgASgDIlIKFlRvb2xDYWxsUmVxdWVzdE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIkCgp0b29sX2NhbGxzGAIgAygLMhAuZmhzLnYxLlRvb2xDYWxsIicKEVRvb2xDYW5jZWxNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkiZwoVVG9vbENhbGxSZXN1bHRNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFAoMdG9vbF9jYWxsX2lkGAIgASgJEiQKBnJlc3VsdBgDIAEoCzIULmZocy52MS5EeW5hbWljVmFsdWUiTwoUVG9vbENhbGxFcnJvck1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIUCgx0b29sX2NhbGxfaWQYAiABKAkSDQoFZXJyb3IYAyABKAkiLAoWVG9vbExpc3RSZXF1ZXN0TWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJIlQKF1Rvb2xMaXN0UmVzcG9uc2VNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSJQoFdG9vbHMYAiADKAsyFi5maHMudjEuVG9vbERlZmluaXRpb24i0AEKFE5vZGVBZHZlcnRpc2VNZXNzYWdlEgsKA2RpZBgBIAEoCRIeCgZiZWFjb24YAiABKAsyDi5maHMudjEuQmVhY29uEhIKCm11bHRpYWRkcnMYAyADKAkSEQoJdGltZXN0YW1wGAQgASgDEhMKC3R0bF9zZWNvbmRzGAUgASgFEhEKCWVwaGVtZXJhbBgGIAEoCBIUCgxkZWxlZ2F0ZWRfYnkYByABKAkSEwoLdHJ1c3RfbGV2ZWwYCCABKAkSEQoJc2lnbmF0dXJlGAkgASgMIvoBChNNaXNzaW9uT2ZmZXJNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFQoNbmF2aWdhdG9yX2RpZBgCIAEoCRIcChRuYXZpZ2F0b3JfbXVsdGlhZGRycxgDIAMoCRIUCgxtaXNzaW9uX3R5cGUYBCABKAkSHQoVcmVxdWlyZWRfY2FwYWJpbGl0aWVzGAUgAygJEhcKD3ByZWZlcnJlZF9tb2RlbBgGIAEoCRINCgVzY29wZRgHIAEoCRIXCg9iaWRfZGVhZGxpbmVfbXMYCCABKAMSEQoJdGltZXN0YW1wGAkgASgDEhEKCXNpZ25hdHVyZRgKIAEoDCKZAgoRTWlzc2lvbkJpZE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIUCgxwcm92aWRlcl9kaWQYAiABKAkSGwoTcHJvdmlkZXJfbXVsdGlhZGRycxgDIAMoCRIVCg1wcm92aWRlcl90eXBlGAQgASgJEhwKFG9mZmVyZWRfY2FwYWJpbGl0aWVzGAUgAygJEhUKDW9mZmVyZWRfbW9kZWwYBiABKAkSGAoQcmVwdXRhdGlvbl9zY29yZRgHIAEoAhIcChRlc3RpbWF0ZWRfbGF0ZW5jeV9tcxgIIAEoBRITCgt0cnVzdF9sZXZlbBgJIAEoCRIRCgl0aW1lc3RhbXAYCiABKAMSEQoJc2lnbmF0dXJlGAsgASgMIoIBChRNaXNzaW9uQXNzaWduTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhUKDW5hdmlnYXRvcl9kaWQYAiABKAkSGQoRYXNzaWduZWRfcHJvdmlkZXIYAyABKAkSEQoJdGltZXN0YW1wGAQgASgDEhEKCXNpZ25hdHVyZRgFIAEoDCKkAQoPRGh0QmVhY29uUmVjb3JkEgsKA2RpZBgBIAEoCRIeCgZiZWFjb24YAiABKAsyDi5maHMudjEuQmVhY29uEhIKCm11bHRpYWRkcnMYAyADKAkSFAoMcHVibGlzaGVkX2F0GAQgASgDEhIKCmV4cGlyZXNfYXQYBSABKAMSEwoLZmhzX3ZlcnNpb24YBiABKAkSEQoJc2lnbmF0dXJlGAcgASgMIsUBChNEaHRSZXB1dGF0aW9uUmVjb3JkEhQKDHByb3ZpZGVyX2RpZBgBIAEoCRIVCg1ldmFsdWF0b3JfZGlkGAIgASgJEg0KBXNjb3JlGAMgASgCEhgKEG1pc3Npb25zX3N1Y2Nlc3MYBCABKAMSFwoPbWlzc2lvbnNfZmFpbGVkGAUgASgDEhYKDmF2Z19sYXRlbmN5X21zGAYgASgCEhQKDGxhc3RfdXBkYXRlZBgHIAEoAxIRCglzaWduYXR1cmUYCCABKAwizwEKF1JlcHV0YXRpb25VcGRhdGVNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFAoMcHJvdmlkZXJfZGlkGAIgASgJEhUKDW5hdmlnYXRvcl9kaWQYAyABKAkSEgoKbGF0ZW5jeV9tcxgEIAEoAhIPCgdzdWNjZXNzGAUgASgIEhIKCmVycm9yX2NvZGUYBiABKAkSFAoMZGVsZWdhdGVkX2J5GAcgASgJEhEKCXRpbWVzdGFtcBgIIAEoAxIRCglzaWduYXR1cmUYCSABKAwiggEKD0RlbGVnYXRpb25Ub2tlbhIOCgZpc3N1ZXIYASABKAkSDwoHc3ViamVjdBgCIAEoCRIUCgxjYXBhYmlsaXRpZXMYAyADKAkSEQoJd2FzbV9oYXNoGAQgASgJEhIKCmV4cGlyZXNfYXQYBSABKAMSEQoJc2lnbmF0dXJlGAYgASgMIpEBChZNaXNzaW9uRmVlZGJhY2tNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFAoMcHJvdmlkZXJfZGlkGAIgASgJEhIKCmxhdGVuY3lfbXMYAyABKAISDwoHc3VjY2VzcxgEIAEoCBISCgplcnJvcl9jb2RlGAUgASgJEhQKDGRlbGVnYXRlZF9ieRgGIAEoCSJFChFBZ2VudFN0YXJ0TWVzc2FnZRISCgpzZXNzaW9uX2lkGAEgASgJEg0KBXNjb3BlGAIgASgJEg0KBW1vZGVsGAMgASgJIjgKEkFnZW50U3RhdHVzTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEg4KBnN0YXR1cxgCIAEoCSJNChNTdGFyU2VsZWN0ZWRNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSEwoLcHJvdmlkZXJfaWQYAiABKAkSDQoFbW9kZWwYAyABKAkiVQoTVG9vbFNlbGVjdGVkTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhMKC3Byb3ZpZGVyX2lkGAIgASgJEhUKDWNhcGFiaWxpdHlfaWQYAyABKAkiOgoVQXNzaXN0YW50RGVsdGFNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSDQoFZGVsdGEYAiABKAkisAEKDlByb3ZlbmFuY2VJbmZvEhMKC3Byb3ZpZGVyX2lkGAEgASgJEg0KBW1vZGVsGAIgASgJEhkKEWNvbXBsZXRpb25fdG9rZW5zGAMgASgFEhkKEXRvb2xfcHJvdmlkZXJfaWRzGAQgAygJEhUKDWRhdGFfZXhwb3J0ZWQYBSABKAgSFAoManVyaXNkaWN0aW9uGAYgASgJEhcKD3N0YXJfcmVwdXRhdGlvbhgHIAEoAiJsChlBc3Npc3RhbnRDb21wbGV0ZWRNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSDwoHY29udGVudBgCIAEoCRIqCgpwcm92ZW5hbmNlGAMgASgLMhYuZmhzLnYxLlByb3ZlbmFuY2VJbmZvKpMBCgxQcm92aWRlclR5cGUSHQoZUFJPVklERVJfVFlQRV9VTlNQRUNJRklFRBAAEhYKElBST1ZJREVSX1RZUEVfU1RBUhABEhsKF1BST1ZJREVSX1RZUEVfU0FURUxMSVRFEAISFgoSUFJPVklERVJfVFlQRV9OT1ZBEAMSFwoTUFJPVklERVJfVFlQRV9NVUxUSRAEKnEKClZpc2liaWxpdHkSGgoWVklTSUJJTElUWV9VTlNQRUNJRklFRBAAEhUKEVZJU0lCSUxJVFlfUFVCTElDEAESFgoSVklTSUJJTElUWV9QUklWQVRFEAISGAoUVklTSUJJTElUWV9DT01NVU5JVFkQAypxCg9SZXRlbnRpb25Qb2xpY3kSGQoVUkVURU5USU9OX1VOU1BFQ0lGSUVEEAASEgoOUkVURU5USU9OX05PTkUQARIVChFSRVRFTlRJT05fU0VTU0lPThACEhgKFFJFVEVOVElPTl9QRVJTSVNURU5UEAMqoQEKDkRldmljZVBsYXRmb3JtEh8KG0RFVklDRV9QTEFURk9STV9VTlNQRUNJRklFRBAAEhsKF0RFVklDRV9QTEFURk9STV9BTkRST0lEEAESFwoTREVWSUNFX1BMQVRGT1JNX0lPUxACEhsKF0RFVklDRV9QTEFURk9STV9CUk9XU0VSEAMSGwoXREVWSUNFX1BMQVRGT1JNX0RFU0tUT1AQBCpoCghXYXNtVGllchIZChVXQVNNX1RJRVJfVU5TUEVDSUZJRUQQABIWChJXQVNNX1RJRVJfQkFTRUxJTkUQARISCg5XQVNNX1RJRVJfU0lNRBACEhUKEVdBU01fVElFUl9USFJFQURTEAMqzwEKD01vZGVsQ2FwYWJpbGl0eRIgChxNT0RFTF9DQVBBQklMSVRZX1VOU1BFQ0lGSUVEEAASGQoVTU9ERUxfQ0FQQUJJTElUWV9DSEFUEAESHwobTU9ERUxfQ0FQQUJJTElUWV9DT01QTEVUSU9OEAISHgoaTU9ERUxfQ0FQQUJJTElUWV9FTUJFRERJTkcQAxIbChdNT0RFTF9DQVBBQklMSVRZX1ZJU0lPThAEEiEKHU1PREVMX0NBUEFCSUxJVFlfVE9PTF9DQUxMSU5HEAUqyQMKDEZoc0Vycm9yQ29kZRIeChpGSFNfRVJST1JfQ09ERV9VTlNQRUNJRklFRBAAEhIKDk5PVF9JREVOVElGSUVEEAESFAoQSU5WQUxJRF9NQU5JRkVTVBACEhUKEUlOVkFMSURfU0lHTkFUVVJFEAMSFwoTVU5TVVBQT1JURURfVkVSU0lPThAEEhgKFFVQU1RSRUFNX1VOQVZBSUxBQkxFEAUSFAoQVVBTVFJFQU1fVElNRU9VVBAGEhUKEUlOVkFMSURfQVJHVU1FTlRTEAcSGgoWVU5TVVBQT1JURURfQ0FQQUJJTElUWRAIEhAKDFVOQVVUSE9SSVpFRBAJEg0KCUNBTkNFTExFRBAKEg4KCk9WRVJMT0FERUQQCxISCg5JTlRFUk5BTF9FUlJPUhAMEhYKEkRFTEVHQVRJT05fSU5WQUxJRBANEhYKEkRFTEVHQVRJT05fRVhQSVJFRBAOEhYKEldBU01fSEFTSF9NSVNNQVRDSBAPEhQKEFBFRVJfVU5SRUFDSEFCTEUQEBIWChJESFRfUkVDT1JEX0lOVkFMSUQQERIPCgtCSURfVElNRU9VVBASEhAKDEJJRF9SRUpFQ1RFRBATQkYKEmlvLmdhbGF4X2lhLmZocy52MUILRmhzUHJvdG9jb2xaI2dpdGh1Yi5jb20vcmFmZXgvZ2FsYXhJQS9pZGwvZmhzL3YxYgZwcm90bzM");
+  fileDesc("ChJmaHMtcHJvdG9jb2wucHJvdG8SBmZocy52MSLdDQoIRW52ZWxvcGUSEgoKbWVzc2FnZV9pZBgBIAEoCRIWCg5zb3VyY2VfcGVlcl9pZBgCIAEoCRIUCgxkZXN0X3BlZXJfaWQYAyABKAkSEQoJdGltZXN0YW1wGAQgASgDEg8KB3ZlcnNpb24YBSABKAkSEQoJc2lnbmF0dXJlGAYgASgMEi0KCWhhbmRzaGFrZRgKIAEoCzIYLmZocy52MS5IYW5kc2hha2VNZXNzYWdlSAASNAoNaGFuZHNoYWtlX2FjaxgLIAEoCzIbLmZocy52MS5IYW5kc2hha2VBY2tNZXNzYWdlSAASIwoEcGluZxgMIAEoCzITLmZocy52MS5QaW5nTWVzc2FnZUgAEiMKBHBvbmcYDSABKAsyEy5maHMudjEuUG9uZ01lc3NhZ2VIABIlCgVlcnJvchgOIAEoCzIULmZocy52MS5FcnJvck1lc3NhZ2VIABIyCgxjaGF0X3JlcXVlc3QYFCABKAsyGi5maHMudjEuQ2hhdFJlcXVlc3RNZXNzYWdlSAASMAoLY2hhdF9jYW5jZWwYFSABKAsyGS5maHMudjEuQ2hhdENhbmNlbE1lc3NhZ2VIABIuCgpjaGF0X2RlbHRhGBYgASgLMhguZmhzLnYxLkNoYXREZWx0YU1lc3NhZ2VIABI2Cg5jaGF0X2NvbXBsZXRlZBgXIAEoCzIcLmZocy52MS5DaGF0Q29tcGxldGVkTWVzc2FnZUgAEi4KCmNoYXRfZXJyb3IYGCABKAsyGC5maHMudjEuQ2hhdEVycm9yTWVzc2FnZUgAEjIKDGRpc3BhdGNoX2FjaxgZIAEoCzIaLmZocy52MS5EaXNwYXRjaEFja01lc3NhZ2VIABIzCgl0b29sX2NhbGwYHiABKAsyHi5maHMudjEuVG9vbENhbGxSZXF1ZXN0TWVzc2FnZUgAEjAKC3Rvb2xfY2FuY2VsGB8gASgLMhkuZmhzLnYxLlRvb2xDYW5jZWxNZXNzYWdlSAASNAoLdG9vbF9yZXN1bHQYICABKAsyHS5maHMudjEuVG9vbENhbGxSZXN1bHRNZXNzYWdlSAASMgoKdG9vbF9lcnJvchghIAEoCzIcLmZocy52MS5Ub29sQ2FsbEVycm9yTWVzc2FnZUgAEjMKCXRvb2xfbGlzdBgiIAEoCzIeLmZocy52MS5Ub29sTGlzdFJlcXVlc3RNZXNzYWdlSAASOQoOdG9vbF9saXN0X3Jlc3AYIyABKAsyHy5maHMudjEuVG9vbExpc3RSZXNwb25zZU1lc3NhZ2VIABI2Cg5ub2RlX2FkdmVydGlzZRgoIAEoCzIcLmZocy52MS5Ob2RlQWR2ZXJ0aXNlTWVzc2FnZUgAEjQKDW1pc3Npb25fb2ZmZXIYMiABKAsyGy5maHMudjEuTWlzc2lvbk9mZmVyTWVzc2FnZUgAEjAKC21pc3Npb25fYmlkGDMgASgLMhkuZmhzLnYxLk1pc3Npb25CaWRNZXNzYWdlSAASNgoObWlzc2lvbl9hc3NpZ24YNCABKAsyHC5maHMudjEuTWlzc2lvbkFzc2lnbk1lc3NhZ2VIABItCgpkaHRfYmVhY29uGDUgASgLMhcuZmhzLnYxLkRodEJlYWNvblJlY29yZEgAEjUKDmRodF9yZXB1dGF0aW9uGDYgASgLMhsuZmhzLnYxLkRodFJlcHV0YXRpb25SZWNvcmRIABIwCgthZ2VudF9zdGFydBg8IAEoCzIZLmZocy52MS5BZ2VudFN0YXJ0TWVzc2FnZUgAEjIKDGFnZW50X3N0YXR1cxg9IAEoCzIaLmZocy52MS5BZ2VudFN0YXR1c01lc3NhZ2VIABI0Cg1zdGFyX3NlbGVjdGVkGD4gASgLMhsuZmhzLnYxLlN0YXJTZWxlY3RlZE1lc3NhZ2VIABI0Cg10b29sX3NlbGVjdGVkGD8gASgLMhsuZmhzLnYxLlRvb2xTZWxlY3RlZE1lc3NhZ2VIABI4Cg9hc3Npc3RhbnRfZGVsdGEYQCABKAsyHS5maHMudjEuQXNzaXN0YW50RGVsdGFNZXNzYWdlSAASQAoTYXNzaXN0YW50X2NvbXBsZXRlZBhBIAEoCzIhLmZocy52MS5Bc3Npc3RhbnRDb21wbGV0ZWRNZXNzYWdlSAASOgoQbWlzc2lvbl9mZWVkYmFjaxhGIAEoCzIeLmZocy52MS5NaXNzaW9uRmVlZGJhY2tNZXNzYWdlSAASPAoRcmVwdXRhdGlvbl91cGRhdGUYUCABKAsyHy5maHMudjEuUmVwdXRhdGlvblVwZGF0ZU1lc3NhZ2VIAEIJCgdwYXlsb2FkIusBChBQcm92aWRlcklkZW50aXR5EgoKAmlkGAEgASgJEiIKBHR5cGUYAiABKA4yFC5maHMudjEuUHJvdmlkZXJUeXBlEiYKCnZpc2liaWxpdHkYAyABKA4yEi5maHMudjEuVmlzaWJpbGl0eRIMCgRuYW1lGAQgASgJEhMKC2Rlc2NyaXB0aW9uGAUgASgJEg4KBnJlZ2lvbhgGIAEoCRIMCgR0YWdzGAcgAygJEhEKCWVwaGVtZXJhbBgIIAEoCBIUCgxkZWxlZ2F0ZWRfYnkYCSABKAkSFQoNbGVhc2Vfc2Vjb25kcxgKIAEoBSIdCghFbmRwb2ludBIRCgltdWx0aWFkZHIYASABKAkicAoKRGV2aWNlSW5mbxITCgtmaW5nZXJwcmludBgBIAEoCRIoCghwbGF0Zm9ybRgCIAEoDjIWLmZocy52MS5EZXZpY2VQbGF0Zm9ybRIjCgl3YXNtX3RpZXIYAyABKA4yEC5maHMudjEuV2FzbVRpZXIiZwoNUHJpdmFjeVBvbGljeRIqCglyZXRlbnRpb24YASABKA4yFy5maHMudjEuUmV0ZW50aW9uUG9saWN5EhQKDGp1cmlzZGljdGlvbhgCIAEoCRIUCgx0cmFpbmluZ191c2UYAyABKAgiLwoMQXZhaWxhYmlsaXR5Eh8KF21heF9jb25jdXJyZW50X3JlcXVlc3RzGAEgASgFIqMBCg9Nb2RlbERlc2NyaXB0b3ISCgoCaWQYASABKAkSFAoMZGlzcGxheV9uYW1lGAIgASgJEi0KDGNhcGFiaWxpdGllcxgDIAMoDjIXLmZocy52MS5Nb2RlbENhcGFiaWxpdHkSFgoOY29udGV4dF93aW5kb3cYBCABKAUSEQoJbGFuZ3VhZ2VzGAUgAygJEhQKDHRvb2xfY2FsbGluZxgGIAEoCCKPAQoUQ2FwYWJpbGl0eURlc2NyaXB0b3ISCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIZChFpbnB1dF9tZWRpYV90eXBlcxgEIAMoCRIaChJvdXRwdXRfbWVkaWFfdHlwZXMYBSADKAkSEQoJbGFuZ3VhZ2VzGAYgAygJIkAKD0FnZW50Q2FwYWJpbGl0eRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJIpADCgZCZWFjb24SEwoLZmhzX3ZlcnNpb24YASABKAkSKgoIcHJvdmlkZXIYAiABKAsyGC5maHMudjEuUHJvdmlkZXJJZGVudGl0eRIiCghlbmRwb2ludBgDIAEoCzIQLmZocy52MS5FbmRwb2ludBIiCgZkZXZpY2UYBCABKAsyEi5maHMudjEuRGV2aWNlSW5mbxImCgdwcml2YWN5GAUgASgLMhUuZmhzLnYxLlByaXZhY3lQb2xpY3kSKgoMYXZhaWxhYmlsaXR5GAYgASgLMhQuZmhzLnYxLkF2YWlsYWJpbGl0eRInCgZtb2RlbHMYByADKAsyFy5maHMudjEuTW9kZWxEZXNjcmlwdG9yEjIKDGNhcGFiaWxpdGllcxgIIAMoCzIcLmZocy52MS5DYXBhYmlsaXR5RGVzY3JpcHRvchIzChJhZ2VudF9jYXBhYmlsaXRpZXMYCSADKAsyFy5maHMudjEuQWdlbnRDYXBhYmlsaXR5EhcKD3ByZWZlcnJlZF9zdGFycxgKIAMoCSKWAgoMRHluYW1pY1ZhbHVlEhcKDWJvb2xlYW5fdmFsdWUYASABKAhIABIXCg1pbnRlZ2VyX3ZhbHVlGAIgASgDSAASFgoMbnVtYmVyX3ZhbHVlGAMgASgBSAASFgoMc3RyaW5nX3ZhbHVlGAQgASgJSAASFQoLYnl0ZXNfdmFsdWUYBSABKAxIABItCgxvYmplY3RfdmFsdWUYBiABKAsyFS5maHMudjEuRHluYW1pY09iamVjdEgAEikKCmxpc3RfdmFsdWUYByABKAsyEy5maHMudjEuRHluYW1pY0xpc3RIABIrCgxhcnRpZmFjdF9yZWYYCCABKAsyEy5maHMudjEuQXJ0aWZhY3RSZWZIAEIGCgRraW5kImoKC0FydGlmYWN0UmVmEigKBmlubGluZRgBIAEoCzIWLmZocy52MS5JbmxpbmVBcnRpZmFjdEgAEiQKBGlwZnMYAiABKAsyFC5maHMudjEuSXBmc0FydGlmYWN0SABCCwoJdHJhbnNwb3J0IjAKDklubGluZUFydGlmYWN0EgwKBGRhdGEYASABKAwSEAoIZmlsZW5hbWUYAiABKAkiZgoMSXBmc0FydGlmYWN0EgsKA2NpZBgBIAEoCRIPCgduZXR3b3JrGAIgASgJEhMKC2dhdGV3YXlfdXJsGAMgASgJEhAKCGZpbGVuYW1lGAQgASgJEhEKCXJldGVudGlvbhgFIAEoCSKHAQoNRHluYW1pY09iamVjdBIxCgZmaWVsZHMYASADKAsyIS5maHMudjEuRHluYW1pY09iamVjdC5GaWVsZHNFbnRyeRpDCgtGaWVsZHNFbnRyeRILCgNrZXkYASABKAkSIwoFdmFsdWUYAiABKAsyFC5maHMudjEuRHluYW1pY1ZhbHVlOgI4ASIzCgtEeW5hbWljTGlzdBIkCgZ2YWx1ZXMYASADKAsyFC5maHMudjEuRHluYW1pY1ZhbHVlIuQBCg9Ub29sSW5wdXRTY2hlbWESDAoEdHlwZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCRI7Cgpwcm9wZXJ0aWVzGAMgAygLMicuZmhzLnYxLlRvb2xJbnB1dFNjaGVtYS5Qcm9wZXJ0aWVzRW50cnkSEAoIcmVxdWlyZWQYBCADKAkSEwoLZW51bV92YWx1ZXMYBSADKAkaSgoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRImCgV2YWx1ZRgCIAEoCzIXLmZocy52MS5Ub29sSW5wdXRTY2hlbWE6AjgBIpABChBIYW5kc2hha2VNZXNzYWdlEhMKC2Zoc192ZXJzaW9uGAEgASgJEhQKDGxpc3Rlbl9hZGRycxgCIAMoCRIeCgZiZWFjb24YAyABKAsyDi5maHMudjEuQmVhY29uEjEKEGRlbGVnYXRpb25fdG9rZW4YBCABKAsyFy5maHMudjEuRGVsZWdhdGlvblRva2VuIqMBChNIYW5kc2hha2VBY2tNZXNzYWdlEhMKC2Zoc192ZXJzaW9uGAEgASgJEhUKDWxlYXNlX3NlY29uZHMYAiABKAUSGQoRaGVhcnRiZWF0X3NlY29uZHMYAyABKAUSFQoNbGVhc2VfZXhwaXJlcxgEIAEoAxIZChFhY2NlcHRlZF9zZXJ2aWNlcxgFIAEoBRITCgt0cnVzdF9sZXZlbBgGIAEoCSINCgtQaW5nTWVzc2FnZSInCgtQb25nTWVzc2FnZRIYChBzZXJ2ZXJfdGltZXN0YW1wGAEgASgDIkMKDEVycm9yTWVzc2FnZRIiCgRjb2RlGAEgASgOMhQuZmhzLnYxLkZoc0Vycm9yQ29kZRIPCgdtZXNzYWdlGAIgASgJImQKB01lc3NhZ2USDAoEcm9sZRgBIAEoCRIPCgdjb250ZW50GAIgASgJEhQKDHRvb2xfY2FsbF9pZBgDIAEoCRIkCgp0b29sX2NhbGxzGAQgAygLMhAuZmhzLnYxLlRvb2xDYWxsImIKDlRvb2xEZWZpbml0aW9uEgwKBG5hbWUYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkSLQoMaW5wdXRfc2NoZW1hGAMgASgLMhcuZmhzLnYxLlRvb2xJbnB1dFNjaGVtYSJQCghUb29sQ2FsbBIKCgJpZBgBIAEoCRIMCgR0eXBlGAIgASgJEioKCGZ1bmN0aW9uGAMgASgLMhguZmhzLnYxLlRvb2xDYWxsRnVuY3Rpb24iSQoQVG9vbENhbGxGdW5jdGlvbhIMCgRuYW1lGAEgASgJEicKCWFyZ3VtZW50cxgCIAEoCzIULmZocy52MS5EeW5hbWljVmFsdWUigQEKEkNoYXRSZXF1ZXN0TWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEiEKCG1lc3NhZ2VzGAIgAygLMg8uZmhzLnYxLk1lc3NhZ2USJQoFdG9vbHMYAyADKAsyFi5maHMudjEuVG9vbERlZmluaXRpb24SDQoFbW9kZWwYBCABKAkiJwoRQ2hhdENhbmNlbE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCSI1ChBDaGF0RGVsdGFNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSDQoFZGVsdGEYAiABKAkiYQoUQ2hhdENvbXBsZXRlZE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIPCgdjb250ZW50GAIgASgJEiQKCnRvb2xfY2FsbHMYAyADKAsyEC5maHMudjEuVG9vbENhbGwiNQoQQ2hhdEVycm9yTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEg0KBWVycm9yGAIgASgJIjsKEkRpc3BhdGNoQWNrTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhEKCXF1ZXVlZF9hdBgCIAEoAyJSChZUb29sQ2FsbFJlcXVlc3RNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSJAoKdG9vbF9jYWxscxgCIAMoCzIQLmZocy52MS5Ub29sQ2FsbCInChFUb29sQ2FuY2VsTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJImcKFVRvb2xDYWxsUmVzdWx0TWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhQKDHRvb2xfY2FsbF9pZBgCIAEoCRIkCgZyZXN1bHQYAyABKAsyFC5maHMudjEuRHluYW1pY1ZhbHVlIk8KFFRvb2xDYWxsRXJyb3JNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFAoMdG9vbF9jYWxsX2lkGAIgASgJEg0KBWVycm9yGAMgASgJIiwKFlRvb2xMaXN0UmVxdWVzdE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCSJUChdUb29sTGlzdFJlc3BvbnNlTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEiUKBXRvb2xzGAIgAygLMhYuZmhzLnYxLlRvb2xEZWZpbml0aW9uItABChROb2RlQWR2ZXJ0aXNlTWVzc2FnZRILCgNkaWQYASABKAkSHgoGYmVhY29uGAIgASgLMg4uZmhzLnYxLkJlYWNvbhISCgptdWx0aWFkZHJzGAMgAygJEhEKCXRpbWVzdGFtcBgEIAEoAxITCgt0dGxfc2Vjb25kcxgFIAEoBRIRCgllcGhlbWVyYWwYBiABKAgSFAoMZGVsZWdhdGVkX2J5GAcgASgJEhMKC3RydXN0X2xldmVsGAggASgJEhEKCXNpZ25hdHVyZRgJIAEoDCL6AQoTTWlzc2lvbk9mZmVyTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhUKDW5hdmlnYXRvcl9kaWQYAiABKAkSHAoUbmF2aWdhdG9yX211bHRpYWRkcnMYAyADKAkSFAoMbWlzc2lvbl90eXBlGAQgASgJEh0KFXJlcXVpcmVkX2NhcGFiaWxpdGllcxgFIAMoCRIXCg9wcmVmZXJyZWRfbW9kZWwYBiABKAkSDQoFc2NvcGUYByABKAkSFwoPYmlkX2RlYWRsaW5lX21zGAggASgDEhEKCXRpbWVzdGFtcBgJIAEoAxIRCglzaWduYXR1cmUYCiABKAwimQIKEU1pc3Npb25CaWRNZXNzYWdlEhIKCm1pc3Npb25faWQYASABKAkSFAoMcHJvdmlkZXJfZGlkGAIgASgJEhsKE3Byb3ZpZGVyX211bHRpYWRkcnMYAyADKAkSFQoNcHJvdmlkZXJfdHlwZRgEIAEoCRIcChRvZmZlcmVkX2NhcGFiaWxpdGllcxgFIAMoCRIVCg1vZmZlcmVkX21vZGVsGAYgASgJEhgKEHJlcHV0YXRpb25fc2NvcmUYByABKAISHAoUZXN0aW1hdGVkX2xhdGVuY3lfbXMYCCABKAUSEwoLdHJ1c3RfbGV2ZWwYCSABKAkSEQoJdGltZXN0YW1wGAogASgDEhEKCXNpZ25hdHVyZRgLIAEoDCKCAQoUTWlzc2lvbkFzc2lnbk1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIVCg1uYXZpZ2F0b3JfZGlkGAIgASgJEhkKEWFzc2lnbmVkX3Byb3ZpZGVyGAMgASgJEhEKCXRpbWVzdGFtcBgEIAEoAxIRCglzaWduYXR1cmUYBSABKAwipAEKD0RodEJlYWNvblJlY29yZBILCgNkaWQYASABKAkSHgoGYmVhY29uGAIgASgLMg4uZmhzLnYxLkJlYWNvbhISCgptdWx0aWFkZHJzGAMgAygJEhQKDHB1Ymxpc2hlZF9hdBgEIAEoAxISCgpleHBpcmVzX2F0GAUgASgDEhMKC2Zoc192ZXJzaW9uGAYgASgJEhEKCXNpZ25hdHVyZRgHIAEoDCLFAQoTRGh0UmVwdXRhdGlvblJlY29yZBIUCgxwcm92aWRlcl9kaWQYASABKAkSFQoNZXZhbHVhdG9yX2RpZBgCIAEoCRINCgVzY29yZRgDIAEoAhIYChBtaXNzaW9uc19zdWNjZXNzGAQgASgDEhcKD21pc3Npb25zX2ZhaWxlZBgFIAEoAxIWCg5hdmdfbGF0ZW5jeV9tcxgGIAEoAhIUCgxsYXN0X3VwZGF0ZWQYByABKAMSEQoJc2lnbmF0dXJlGAggASgMIs8BChdSZXB1dGF0aW9uVXBkYXRlTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhQKDHByb3ZpZGVyX2RpZBgCIAEoCRIVCg1uYXZpZ2F0b3JfZGlkGAMgASgJEhIKCmxhdGVuY3lfbXMYBCABKAISDwoHc3VjY2VzcxgFIAEoCBISCgplcnJvcl9jb2RlGAYgASgJEhQKDGRlbGVnYXRlZF9ieRgHIAEoCRIRCgl0aW1lc3RhbXAYCCABKAMSEQoJc2lnbmF0dXJlGAkgASgMIoIBCg9EZWxlZ2F0aW9uVG9rZW4SDgoGaXNzdWVyGAEgASgJEg8KB3N1YmplY3QYAiABKAkSFAoMY2FwYWJpbGl0aWVzGAMgAygJEhEKCXdhc21faGFzaBgEIAEoCRISCgpleHBpcmVzX2F0GAUgASgDEhEKCXNpZ25hdHVyZRgGIAEoDCKRAQoWTWlzc2lvbkZlZWRiYWNrTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhQKDHByb3ZpZGVyX2RpZBgCIAEoCRISCgpsYXRlbmN5X21zGAMgASgCEg8KB3N1Y2Nlc3MYBCABKAgSEgoKZXJyb3JfY29kZRgFIAEoCRIUCgxkZWxlZ2F0ZWRfYnkYBiABKAkiRQoRQWdlbnRTdGFydE1lc3NhZ2USEgoKc2Vzc2lvbl9pZBgBIAEoCRINCgVzY29wZRgCIAEoCRINCgVtb2RlbBgDIAEoCSI4ChJBZ2VudFN0YXR1c01lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRIOCgZzdGF0dXMYAiABKAkiTQoTU3RhclNlbGVjdGVkTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEhMKC3Byb3ZpZGVyX2lkGAIgASgJEg0KBW1vZGVsGAMgASgJIlUKE1Rvb2xTZWxlY3RlZE1lc3NhZ2USEgoKbWlzc2lvbl9pZBgBIAEoCRITCgtwcm92aWRlcl9pZBgCIAEoCRIVCg1jYXBhYmlsaXR5X2lkGAMgASgJIjoKFUFzc2lzdGFudERlbHRhTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEg0KBWRlbHRhGAIgASgJIrABCg5Qcm92ZW5hbmNlSW5mbxITCgtwcm92aWRlcl9pZBgBIAEoCRINCgVtb2RlbBgCIAEoCRIZChFjb21wbGV0aW9uX3Rva2VucxgDIAEoBRIZChF0b29sX3Byb3ZpZGVyX2lkcxgEIAMoCRIVCg1kYXRhX2V4cG9ydGVkGAUgASgIEhQKDGp1cmlzZGljdGlvbhgGIAEoCRIXCg9zdGFyX3JlcHV0YXRpb24YByABKAIibAoZQXNzaXN0YW50Q29tcGxldGVkTWVzc2FnZRISCgptaXNzaW9uX2lkGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSKgoKcHJvdmVuYW5jZRgDIAEoCzIWLmZocy52MS5Qcm92ZW5hbmNlSW5mbyqTAQoMUHJvdmlkZXJUeXBlEh0KGVBST1ZJREVSX1RZUEVfVU5TUEVDSUZJRUQQABIWChJQUk9WSURFUl9UWVBFX1NUQVIQARIbChdQUk9WSURFUl9UWVBFX1NBVEVMTElURRACEhYKElBST1ZJREVSX1RZUEVfTk9WQRADEhcKE1BST1ZJREVSX1RZUEVfTVVMVEkQBCpxCgpWaXNpYmlsaXR5EhoKFlZJU0lCSUxJVFlfVU5TUEVDSUZJRUQQABIVChFWSVNJQklMSVRZX1BVQkxJQxABEhYKElZJU0lCSUxJVFlfUFJJVkFURRACEhgKFFZJU0lCSUxJVFlfQ09NTVVOSVRZEAMqcQoPUmV0ZW50aW9uUG9saWN5EhkKFVJFVEVOVElPTl9VTlNQRUNJRklFRBAAEhIKDlJFVEVOVElPTl9OT05FEAESFQoRUkVURU5USU9OX1NFU1NJT04QAhIYChRSRVRFTlRJT05fUEVSU0lTVEVOVBADKqEBCg5EZXZpY2VQbGF0Zm9ybRIfChtERVZJQ0VfUExBVEZPUk1fVU5TUEVDSUZJRUQQABIbChdERVZJQ0VfUExBVEZPUk1fQU5EUk9JRBABEhcKE0RFVklDRV9QTEFURk9STV9JT1MQAhIbChdERVZJQ0VfUExBVEZPUk1fQlJPV1NFUhADEhsKF0RFVklDRV9QTEFURk9STV9ERVNLVE9QEAQqaAoIV2FzbVRpZXISGQoVV0FTTV9USUVSX1VOU1BFQ0lGSUVEEAASFgoSV0FTTV9USUVSX0JBU0VMSU5FEAESEgoOV0FTTV9USUVSX1NJTUQQAhIVChFXQVNNX1RJRVJfVEhSRUFEUxADKs8BCg9Nb2RlbENhcGFiaWxpdHkSIAocTU9ERUxfQ0FQQUJJTElUWV9VTlNQRUNJRklFRBAAEhkKFU1PREVMX0NBUEFCSUxJVFlfQ0hBVBABEh8KG01PREVMX0NBUEFCSUxJVFlfQ09NUExFVElPThACEh4KGk1PREVMX0NBUEFCSUxJVFlfRU1CRURESU5HEAMSGwoXTU9ERUxfQ0FQQUJJTElUWV9WSVNJT04QBBIhCh1NT0RFTF9DQVBBQklMSVRZX1RPT0xfQ0FMTElORxAFKskDCgxGaHNFcnJvckNvZGUSHgoaRkhTX0VSUk9SX0NPREVfVU5TUEVDSUZJRUQQABISCg5OT1RfSURFTlRJRklFRBABEhQKEElOVkFMSURfTUFOSUZFU1QQAhIVChFJTlZBTElEX1NJR05BVFVSRRADEhcKE1VOU1VQUE9SVEVEX1ZFUlNJT04QBBIYChRVUFNUUkVBTV9VTkFWQUlMQUJMRRAFEhQKEFVQU1RSRUFNX1RJTUVPVVQQBhIVChFJTlZBTElEX0FSR1VNRU5UUxAHEhoKFlVOU1VQUE9SVEVEX0NBUEFCSUxJVFkQCBIQCgxVTkFVVEhPUklaRUQQCRINCglDQU5DRUxMRUQQChIOCgpPVkVSTE9BREVEEAsSEgoOSU5URVJOQUxfRVJST1IQDBIWChJERUxFR0FUSU9OX0lOVkFMSUQQDRIWChJERUxFR0FUSU9OX0VYUElSRUQQDhIWChJXQVNNX0hBU0hfTUlTTUFUQ0gQDxIUChBQRUVSX1VOUkVBQ0hBQkxFEBASFgoSREhUX1JFQ09SRF9JTlZBTElEEBESDwoLQklEX1RJTUVPVVQQEhIQCgxCSURfUkVKRUNURUQQE0JGChJpby5nYWxheF9pYS5maHMudjFCC0Zoc1Byb3RvY29sWiNnaXRodWIuY29tL3JhZmV4L2dhbGF4SUEvaWRsL2Zocy92MWIGcHJvdG8z");
 
 /**
  * @generated from message fhs.v1.Envelope
@@ -683,6 +683,12 @@ export type DynamicValue = Message$1<"fhs.v1.DynamicValue"> & {
      */
     value: DynamicList;
     case: "listValue";
+  } | {
+    /**
+     * @generated from field: fhs.v1.ArtifactRef artifact_ref = 8;
+     */
+    value: ArtifactRef;
+    case: "artifactRef";
   } | { case: undefined; value?: undefined };
 };
 
@@ -692,6 +698,104 @@ export type DynamicValue = Message$1<"fhs.v1.DynamicValue"> & {
  */
 export const DynamicValueSchema: GenMessage<DynamicValue> = /*@__PURE__*/
   messageDesc(file_fhs_protocol, 10);
+
+/**
+ * Referencia canónica a un binario (DEC-0046/0047). El endpoint de escritura
+ * nunca viaja por FHS: inline transporta los bytes directamente y ipfs solo
+ * transporta la referencia de lectura que el provider debe resolver.
+ *
+ * @generated from message fhs.v1.ArtifactRef
+ */
+export type ArtifactRef = Message$1<"fhs.v1.ArtifactRef"> & {
+  /**
+   * @generated from oneof fhs.v1.ArtifactRef.transport
+   */
+  transport: {
+    /**
+     * @generated from field: fhs.v1.InlineArtifact inline = 1;
+     */
+    value: InlineArtifact;
+    case: "inline";
+  } | {
+    /**
+     * @generated from field: fhs.v1.IpfsArtifact ipfs = 2;
+     */
+    value: IpfsArtifact;
+    case: "ipfs";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message fhs.v1.ArtifactRef.
+ * Use `create(ArtifactRefSchema)` to create a new message.
+ */
+export const ArtifactRefSchema: GenMessage<ArtifactRef> = /*@__PURE__*/
+  messageDesc(file_fhs_protocol, 11);
+
+/**
+ * @generated from message fhs.v1.InlineArtifact
+ */
+export type InlineArtifact = Message$1<"fhs.v1.InlineArtifact"> & {
+  /**
+   * @generated from field: bytes data = 1;
+   */
+  data: Uint8Array;
+
+  /**
+   * @generated from field: string filename = 2;
+   */
+  filename: string;
+};
+
+/**
+ * Describes the message fhs.v1.InlineArtifact.
+ * Use `create(InlineArtifactSchema)` to create a new message.
+ */
+export const InlineArtifactSchema: GenMessage<InlineArtifact> = /*@__PURE__*/
+  messageDesc(file_fhs_protocol, 12);
+
+/**
+ * @generated from message fhs.v1.IpfsArtifact
+ */
+export type IpfsArtifact = Message$1<"fhs.v1.IpfsArtifact"> & {
+  /**
+   * @generated from field: string cid = 1;
+   */
+  cid: string;
+
+  /**
+   * public | private
+   *
+   * @generated from field: string network = 2;
+   */
+  network: string;
+
+  /**
+   * endpoint de lectura; nunca API de escritura
+   *
+   * @generated from field: string gateway_url = 3;
+   */
+  gatewayUrl: string;
+
+  /**
+   * @generated from field: string filename = 4;
+   */
+  filename: string;
+
+  /**
+   * ephemeral | reuse
+   *
+   * @generated from field: string retention = 5;
+   */
+  retention: string;
+};
+
+/**
+ * Describes the message fhs.v1.IpfsArtifact.
+ * Use `create(IpfsArtifactSchema)` to create a new message.
+ */
+export const IpfsArtifactSchema: GenMessage<IpfsArtifact> = /*@__PURE__*/
+  messageDesc(file_fhs_protocol, 13);
 
 /**
  * @generated from message fhs.v1.DynamicObject
@@ -708,7 +812,7 @@ export type DynamicObject = Message$1<"fhs.v1.DynamicObject"> & {
  * Use `create(DynamicObjectSchema)` to create a new message.
  */
 export const DynamicObjectSchema: GenMessage<DynamicObject> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 11);
+  messageDesc(file_fhs_protocol, 14);
 
 /**
  * @generated from message fhs.v1.DynamicList
@@ -725,7 +829,7 @@ export type DynamicList = Message$1<"fhs.v1.DynamicList"> & {
  * Use `create(DynamicListSchema)` to create a new message.
  */
 export const DynamicListSchema: GenMessage<DynamicList> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 12);
+  messageDesc(file_fhs_protocol, 15);
 
 /**
  * @generated from message fhs.v1.ToolInputSchema
@@ -762,7 +866,7 @@ export type ToolInputSchema = Message$1<"fhs.v1.ToolInputSchema"> & {
  * Use `create(ToolInputSchemaSchema)` to create a new message.
  */
 export const ToolInputSchemaSchema: GenMessage<ToolInputSchema> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 13);
+  messageDesc(file_fhs_protocol, 16);
 
 /**
  * handshake — Nodo A → Nodo B
@@ -807,7 +911,7 @@ export type HandshakeMessage = Message$1<"fhs.v1.HandshakeMessage"> & {
  * Use `create(HandshakeMessageSchema)` to create a new message.
  */
 export const HandshakeMessageSchema: GenMessage<HandshakeMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 14);
+  messageDesc(file_fhs_protocol, 17);
 
 /**
  * handshake_ack — Nodo B → Nodo A
@@ -864,7 +968,7 @@ export type HandshakeAckMessage = Message$1<"fhs.v1.HandshakeAckMessage"> & {
  * Use `create(HandshakeAckMessageSchema)` to create a new message.
  */
 export const HandshakeAckMessageSchema: GenMessage<HandshakeAckMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 15);
+  messageDesc(file_fhs_protocol, 18);
 
 /**
  * ping — Nodo A → Nodo B (Pulse / heartbeat)
@@ -880,7 +984,7 @@ export type PingMessage = Message$1<"fhs.v1.PingMessage"> & {
  * Use `create(PingMessageSchema)` to create a new message.
  */
 export const PingMessageSchema: GenMessage<PingMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 16);
+  messageDesc(file_fhs_protocol, 19);
 
 /**
  * pong — Nodo B → Nodo A
@@ -902,7 +1006,7 @@ export type PongMessage = Message$1<"fhs.v1.PongMessage"> & {
  * Use `create(PongMessageSchema)` to create a new message.
  */
 export const PongMessageSchema: GenMessage<PongMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 17);
+  messageDesc(file_fhs_protocol, 20);
 
 /**
  * @generated from message fhs.v1.ErrorMessage
@@ -926,7 +1030,7 @@ export type ErrorMessage = Message$1<"fhs.v1.ErrorMessage"> & {
  * Use `create(ErrorMessageSchema)` to create a new message.
  */
 export const ErrorMessageSchema: GenMessage<ErrorMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 18);
+  messageDesc(file_fhs_protocol, 21);
 
 /**
  * @generated from message fhs.v1.Message
@@ -962,7 +1066,7 @@ export type Message = Message$1<"fhs.v1.Message"> & {
  * Use `create(MessageSchema)` to create a new message.
  */
 export const MessageSchema: GenMessage<Message> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 19);
+  messageDesc(file_fhs_protocol, 22);
 
 /**
  * @generated from message fhs.v1.ToolDefinition
@@ -991,7 +1095,7 @@ export type ToolDefinition = Message$1<"fhs.v1.ToolDefinition"> & {
  * Use `create(ToolDefinitionSchema)` to create a new message.
  */
 export const ToolDefinitionSchema: GenMessage<ToolDefinition> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 20);
+  messageDesc(file_fhs_protocol, 23);
 
 /**
  * @generated from message fhs.v1.ToolCall
@@ -1020,7 +1124,7 @@ export type ToolCall = Message$1<"fhs.v1.ToolCall"> & {
  * Use `create(ToolCallSchema)` to create a new message.
  */
 export const ToolCallSchema: GenMessage<ToolCall> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 21);
+  messageDesc(file_fhs_protocol, 24);
 
 /**
  * @generated from message fhs.v1.ToolCallFunction
@@ -1044,7 +1148,7 @@ export type ToolCallFunction = Message$1<"fhs.v1.ToolCallFunction"> & {
  * Use `create(ToolCallFunctionSchema)` to create a new message.
  */
 export const ToolCallFunctionSchema: GenMessage<ToolCallFunction> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 22);
+  messageDesc(file_fhs_protocol, 25);
 
 /**
  * chat.request — Navigator → Star (stream directo)
@@ -1080,7 +1184,7 @@ export type ChatRequestMessage = Message$1<"fhs.v1.ChatRequestMessage"> & {
  * Use `create(ChatRequestMessageSchema)` to create a new message.
  */
 export const ChatRequestMessageSchema: GenMessage<ChatRequestMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 23);
+  messageDesc(file_fhs_protocol, 26);
 
 /**
  * chat.cancel — Portal → Navigator (stream directo)
@@ -1099,7 +1203,7 @@ export type ChatCancelMessage = Message$1<"fhs.v1.ChatCancelMessage"> & {
  * Use `create(ChatCancelMessageSchema)` to create a new message.
  */
 export const ChatCancelMessageSchema: GenMessage<ChatCancelMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 24);
+  messageDesc(file_fhs_protocol, 27);
 
 /**
  * chat.delta — Star → Navigator (stream directo, streaming)
@@ -1123,7 +1227,7 @@ export type ChatDeltaMessage = Message$1<"fhs.v1.ChatDeltaMessage"> & {
  * Use `create(ChatDeltaMessageSchema)` to create a new message.
  */
 export const ChatDeltaMessageSchema: GenMessage<ChatDeltaMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 25);
+  messageDesc(file_fhs_protocol, 28);
 
 /**
  * chat.completed — Star → Navigator (stream directo)
@@ -1152,7 +1256,7 @@ export type ChatCompletedMessage = Message$1<"fhs.v1.ChatCompletedMessage"> & {
  * Use `create(ChatCompletedMessageSchema)` to create a new message.
  */
 export const ChatCompletedMessageSchema: GenMessage<ChatCompletedMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 26);
+  messageDesc(file_fhs_protocol, 29);
 
 /**
  * chat.error — Star → Navigator (stream directo)
@@ -1176,7 +1280,7 @@ export type ChatErrorMessage = Message$1<"fhs.v1.ChatErrorMessage"> & {
  * Use `create(ChatErrorMessageSchema)` to create a new message.
  */
 export const ChatErrorMessageSchema: GenMessage<ChatErrorMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 27);
+  messageDesc(file_fhs_protocol, 30);
 
 /**
  * dispatch.ack — Provider → Navigator (stream directo)
@@ -1201,7 +1305,7 @@ export type DispatchAckMessage = Message$1<"fhs.v1.DispatchAckMessage"> & {
  * Use `create(DispatchAckMessageSchema)` to create a new message.
  */
 export const DispatchAckMessageSchema: GenMessage<DispatchAckMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 28);
+  messageDesc(file_fhs_protocol, 31);
 
 /**
  * tool.call — Navigator → Satellite (stream directo)
@@ -1225,7 +1329,7 @@ export type ToolCallRequestMessage = Message$1<"fhs.v1.ToolCallRequestMessage"> 
  * Use `create(ToolCallRequestMessageSchema)` to create a new message.
  */
 export const ToolCallRequestMessageSchema: GenMessage<ToolCallRequestMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 29);
+  messageDesc(file_fhs_protocol, 32);
 
 /**
  * tool.cancel — Navigator → Satellite (stream directo)
@@ -1244,7 +1348,7 @@ export type ToolCancelMessage = Message$1<"fhs.v1.ToolCancelMessage"> & {
  * Use `create(ToolCancelMessageSchema)` to create a new message.
  */
 export const ToolCancelMessageSchema: GenMessage<ToolCancelMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 30);
+  messageDesc(file_fhs_protocol, 33);
 
 /**
  * tool.result — Satellite → Navigator (stream directo)
@@ -1275,7 +1379,7 @@ export type ToolCallResultMessage = Message$1<"fhs.v1.ToolCallResultMessage"> & 
  * Use `create(ToolCallResultMessageSchema)` to create a new message.
  */
 export const ToolCallResultMessageSchema: GenMessage<ToolCallResultMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 31);
+  messageDesc(file_fhs_protocol, 34);
 
 /**
  * tool.error — Satellite → Navigator (stream directo)
@@ -1304,7 +1408,7 @@ export type ToolCallErrorMessage = Message$1<"fhs.v1.ToolCallErrorMessage"> & {
  * Use `create(ToolCallErrorMessageSchema)` to create a new message.
  */
 export const ToolCallErrorMessageSchema: GenMessage<ToolCallErrorMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 32);
+  messageDesc(file_fhs_protocol, 35);
 
 /**
  * tool.list — Navigator → Satellite (stream directo)
@@ -1323,7 +1427,7 @@ export type ToolListRequestMessage = Message$1<"fhs.v1.ToolListRequestMessage"> 
  * Use `create(ToolListRequestMessageSchema)` to create a new message.
  */
 export const ToolListRequestMessageSchema: GenMessage<ToolListRequestMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 33);
+  messageDesc(file_fhs_protocol, 36);
 
 /**
  * tool.list.response — Satellite → Navigator (stream directo)
@@ -1347,7 +1451,7 @@ export type ToolListResponseMessage = Message$1<"fhs.v1.ToolListResponseMessage"
  * Use `create(ToolListResponseMessageSchema)` to create a new message.
  */
 export const ToolListResponseMessageSchema: GenMessage<ToolListResponseMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 34);
+  messageDesc(file_fhs_protocol, 37);
 
 /**
  * @generated from message fhs.v1.NodeAdvertiseMessage
@@ -1422,7 +1526,7 @@ export type NodeAdvertiseMessage = Message$1<"fhs.v1.NodeAdvertiseMessage"> & {
  * Use `create(NodeAdvertiseMessageSchema)` to create a new message.
  */
 export const NodeAdvertiseMessageSchema: GenMessage<NodeAdvertiseMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 35);
+  messageDesc(file_fhs_protocol, 38);
 
 /**
  * Tópico: fhs/v1/missions/offer
@@ -1504,7 +1608,7 @@ export type MissionOfferMessage = Message$1<"fhs.v1.MissionOfferMessage"> & {
  * Use `create(MissionOfferMessageSchema)` to create a new message.
  */
 export const MissionOfferMessageSchema: GenMessage<MissionOfferMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 36);
+  messageDesc(file_fhs_protocol, 39);
 
 /**
  * Tópico: fhs/v1/missions/bid
@@ -1593,7 +1697,7 @@ export type MissionBidMessage = Message$1<"fhs.v1.MissionBidMessage"> & {
  * Use `create(MissionBidMessageSchema)` to create a new message.
  */
 export const MissionBidMessageSchema: GenMessage<MissionBidMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 37);
+  messageDesc(file_fhs_protocol, 40);
 
 /**
  * Tópico: fhs/v1/missions/assign
@@ -1640,7 +1744,7 @@ export type MissionAssignMessage = Message$1<"fhs.v1.MissionAssignMessage"> & {
  * Use `create(MissionAssignMessageSchema)` to create a new message.
  */
 export const MissionAssignMessageSchema: GenMessage<MissionAssignMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 38);
+  messageDesc(file_fhs_protocol, 41);
 
 /**
  * DHT Key: did del nodo
@@ -1703,7 +1807,7 @@ export type DhtBeaconRecord = Message$1<"fhs.v1.DhtBeaconRecord"> & {
  * Use `create(DhtBeaconRecordSchema)` to create a new message.
  */
 export const DhtBeaconRecordSchema: GenMessage<DhtBeaconRecord> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 39);
+  messageDesc(file_fhs_protocol, 42);
 
 /**
  * DHT Key: "reputation/" + DID del provider
@@ -1775,7 +1879,7 @@ export type DhtReputationRecord = Message$1<"fhs.v1.DhtReputationRecord"> & {
  * Use `create(DhtReputationRecordSchema)` to create a new message.
  */
 export const DhtReputationRecordSchema: GenMessage<DhtReputationRecord> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 40);
+  messageDesc(file_fhs_protocol, 43);
 
 /**
  * @generated from message fhs.v1.ReputationUpdateMessage
@@ -1848,7 +1952,7 @@ export type ReputationUpdateMessage = Message$1<"fhs.v1.ReputationUpdateMessage"
  * Use `create(ReputationUpdateMessageSchema)` to create a new message.
  */
 export const ReputationUpdateMessageSchema: GenMessage<ReputationUpdateMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 41);
+  messageDesc(file_fhs_protocol, 44);
 
 /**
  * ── Ephemeral Satellite (SPEC-EPHSAT-0001) ────────────────────────────────────
@@ -1912,7 +2016,7 @@ export type DelegationToken = Message$1<"fhs.v1.DelegationToken"> & {
  * Use `create(DelegationTokenSchema)` to create a new message.
  */
 export const DelegationTokenSchema: GenMessage<DelegationToken> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 42);
+  messageDesc(file_fhs_protocol, 45);
 
 /**
  * mission.feedback — En el modelo P2P viaja también como ReputationUpdateMessage
@@ -1970,7 +2074,7 @@ export type MissionFeedbackMessage = Message$1<"fhs.v1.MissionFeedbackMessage"> 
  * Use `create(MissionFeedbackMessageSchema)` to create a new message.
  */
 export const MissionFeedbackMessageSchema: GenMessage<MissionFeedbackMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 43);
+  messageDesc(file_fhs_protocol, 46);
 
 /**
  * agent.start — Portal → Navigator
@@ -2005,7 +2109,7 @@ export type AgentStartMessage = Message$1<"fhs.v1.AgentStartMessage"> & {
  * Use `create(AgentStartMessageSchema)` to create a new message.
  */
 export const AgentStartMessageSchema: GenMessage<AgentStartMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 44);
+  messageDesc(file_fhs_protocol, 47);
 
 /**
  * agent.status — Navigator → Portal
@@ -2031,7 +2135,7 @@ export type AgentStatusMessage = Message$1<"fhs.v1.AgentStatusMessage"> & {
  * Use `create(AgentStatusMessageSchema)` to create a new message.
  */
 export const AgentStatusMessageSchema: GenMessage<AgentStatusMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 45);
+  messageDesc(file_fhs_protocol, 48);
 
 /**
  * star.selected — Navigator → Portal
@@ -2064,7 +2168,7 @@ export type StarSelectedMessage = Message$1<"fhs.v1.StarSelectedMessage"> & {
  * Use `create(StarSelectedMessageSchema)` to create a new message.
  */
 export const StarSelectedMessageSchema: GenMessage<StarSelectedMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 46);
+  messageDesc(file_fhs_protocol, 49);
 
 /**
  * tool.selected — Navigator → Portal
@@ -2097,7 +2201,7 @@ export type ToolSelectedMessage = Message$1<"fhs.v1.ToolSelectedMessage"> & {
  * Use `create(ToolSelectedMessageSchema)` to create a new message.
  */
 export const ToolSelectedMessageSchema: GenMessage<ToolSelectedMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 47);
+  messageDesc(file_fhs_protocol, 50);
 
 /**
  * assistant.delta — Navigator → Portal (streaming)
@@ -2121,7 +2225,7 @@ export type AssistantDeltaMessage = Message$1<"fhs.v1.AssistantDeltaMessage"> & 
  * Use `create(AssistantDeltaMessageSchema)` to create a new message.
  */
 export const AssistantDeltaMessageSchema: GenMessage<AssistantDeltaMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 48);
+  messageDesc(file_fhs_protocol, 51);
 
 /**
  * ProvenanceInfo — trazabilidad de la misión
@@ -2184,7 +2288,7 @@ export type ProvenanceInfo = Message$1<"fhs.v1.ProvenanceInfo"> & {
  * Use `create(ProvenanceInfoSchema)` to create a new message.
  */
 export const ProvenanceInfoSchema: GenMessage<ProvenanceInfo> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 49);
+  messageDesc(file_fhs_protocol, 52);
 
 /**
  * assistant.completed — Navigator → Portal
@@ -2215,7 +2319,7 @@ export type AssistantCompletedMessage = Message$1<"fhs.v1.AssistantCompletedMess
  * Use `create(AssistantCompletedMessageSchema)` to create a new message.
  */
 export const AssistantCompletedMessageSchema: GenMessage<AssistantCompletedMessage> = /*@__PURE__*/
-  messageDesc(file_fhs_protocol, 50);
+  messageDesc(file_fhs_protocol, 53);
 
 /**
  * @generated from enum fhs.v1.ProviderType
