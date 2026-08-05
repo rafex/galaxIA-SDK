@@ -58,7 +58,8 @@
     .result.err { border-color: var(--err); color: var(--err); }
     .result.loading { animation: pulse 1s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    #curp17 {
+    .hint { color: var(--muted); font-size: 0.8rem; line-height: 1.4; margin: -0.5rem 0 1rem; }
+    .curp-value {
       font-family: monospace; font-size: 1.4rem; font-weight: 700;
       letter-spacing: 0.15em; color: var(--ok);
       margin-top: 0.5rem;
@@ -69,7 +70,7 @@
 </head>
 <body>
   <h1>Ephemeral Satellite <span class="badge">WASM</span></h1>
-  <p class="subtitle">Capacidades corriendo como WebAssembly real en un Web Worker — sin backend, sin servidor.</p>
+  <p class="subtitle">Crear y validar CURP en el teléfono: el cálculo corre como WebAssembly en un Web Worker, sin enviar tus datos.</p>
 
   <section>
     <h2>Aritmética</h2>
@@ -131,14 +132,32 @@
           <input id="entidad" type="text" placeholder="Distrito Federal" value="Distrito Federal" />
         </div>
       </div>
+      <div class="field">
+        <label for="diferenciador">Posición 17 (opcional)</label>
+        <input id="diferenciador" type="text" maxlength="1" placeholder="Automática: 0 o A" autocomplete="off" />
+      </div>
       <button type="submit">Calcular CURP</button>
     </form>
-    <div id="curp17" role="status" aria-live="polite" aria-label="CURP calculada"></div>
-    <div id="curp-full" class="result" style="display:none"></div>
+    <div id="curp-full" class="curp-value" role="status" aria-live="polite" aria-label="CURP calculada"></div>
     <div id="curp-result" class="result" role="status" aria-live="polite">Rellena los datos y presiona Calcular CURP.</div>
   </section>
 
-  <footer>galaxIA — Ephemeral Satellite concept — WASM vía AssemblyScript</footer>
+  <hr class="divider" />
+
+  <section>
+    <h2>Validar una CURP</h2>
+    <p class="hint">Comprueba formato, fecha, entidad y dígito verificador localmente. No confirma que la clave exista en RENAPO.</p>
+    <form id="curp-validate-form">
+      <div class="field">
+        <label for="curp-value">CURP de 18 caracteres</label>
+        <input id="curp-value" type="text" maxlength="18" placeholder="Ej. BOXW310820HNERXN09" autocomplete="off" spellcheck="false" />
+      </div>
+      <button type="submit">Validar CURP</button>
+    </form>
+    <div id="curp-validate-result" class="result" role="status" aria-live="polite">Escribe una CURP y presiona Validar CURP.</div>
+  </section>
+
+  <footer>galaxIA — datos solo en este dispositivo — WASM vía AssemblyScript</footer>
 
   <script type="module" src="/src/main.ts"></script>
 </body>

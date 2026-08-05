@@ -1,11 +1,11 @@
 /**
  * Entry point del módulo WASM satellite-capabilities.
  * Todas las funciones exportadas son string-in/string-out con prefijo OK/ERR.
- * El formato de CURP usa "|" como separador: "OK:curp17|warnings".
+ * El formato de CURP usa "|" como separador: "OK:curp|warnings".
  */
 
 import { evalExpression, getArithError } from "./arithmetic";
-import { computeCurp17 } from "./curp";
+import { computeCurp17, validateCurpEncoded as validateCurpValue } from "./curp";
 
 /**
  * Evalúa una expresión aritmética.
@@ -19,10 +19,10 @@ export function solveExpression(expr: string): string {
 }
 
 /**
- * Calcula las 17 primeras posiciones de la CURP.
- * Entrada: campos separados por "|": nombre|apPat|apMat|year|month|day|sexo|entidad
+ * Calcula una CURP candidata de 18 posiciones.
+ * Entrada: nombre|apPat|apMat|year|month|day|sexo|entidad|diferenciador(opcional)
  *   - apMat puede ser "" (vacío) si no aplica.
- * Devuelve "OK:<curp17>|<warnings>" o "ERR:<mensaje>".
+ * Devuelve "OK:<curp>|<warnings>" o "ERR:<mensaje>".
  */
 export function computeCurpEncoded(encoded: string): string {
   const parts: string[] = [];
@@ -53,7 +53,13 @@ export function computeCurpEncoded(encoded: string): string {
     return "ERR:year/month/day deben ser enteros";
   }
 
-  const r = computeCurp17(nombre, apPat, apMat, year, month, day, sexo, entidad);
+  const differentiator = parts.length >= 9 ? parts[8] : "";
+  const r = computeCurp17(nombre, apPat, apMat, year, month, day, sexo, entidad, differentiator);
   if (r.error.length > 0) return "ERR:" + r.error;
-  return "OK:" + r.curp17 + "|" + r.warnings;
+  return "OK:" + r.curp + "|" + r.warnings;
+}
+
+/** Valida una CURP completa sin sacar los datos del navegador. */
+export function validateCurpEncoded(curp: string): string {
+  return validateCurpValue(curp);
 }

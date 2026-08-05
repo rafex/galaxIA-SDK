@@ -1,35 +1,13 @@
 /**
- * Cómputo de CURP — capacidad `identity.curp.compute` pensada para un
- * Ephemeral Satellite (nodo WASM en navegador, ver spec-native/DECISIONS.md).
+ * CURP local: construcción candidata y validación estructural.
  *
- * Implementa las **17 primeras posiciones** según el Instructivo Normativo
- * para la Asignación de la Clave Única de Registro de Población (DOF,
- * publicado 18-06-2018, modificado 18-10-2021) — caso de personas
- * mexicanas por nacimiento, verificadas exactas contra el ejemplo
- * resuelto del propio documento (prueba dorada en los tests).
+ * El Instructivo Normativo (DOF 18-10-2021) define las 18 posiciones, pero
+ * remite el catálogo y las reglas de casos especiales a un documento externo
+ * y no sustituye la asignación contra la base oficial. Por eso este módulo no
+ * afirma que una clave calculada quede registrada o sea única en RENAPO.
  *
- * IMPORTANTE — esto CALCULA lo que las primeras 17 posiciones de la CURP
- * de una persona deberían ser aplicando el algoritmo público, exactamente
- * como cualquier calculadora de CURP ya disponible en línea. NO consulta
- * ni sustituye al registro oficial de RENAPO — no verifica que la CURP
- * calculada esté realmente asignada, activa, o coincida con la que RENAPO
- * tiene en su base de datos (BDNCURP). Mismo principio que
- * `identity.curp.syntax.validate` vs `.verify` del análisis original de
- * esta sesión: nunca se presenta como una garantía más fuerte de lo que es.
- *
- * **La posición 18 (dígito verificador) NO se calcula** — el Instructivo
- * confirma que existe un algoritmo de la Secretaría de Gobernación para
- * calcularlo, pero no lo publica (remite a "Reglas para la ejecución de
- * los procedimientos...", no compartido). Se probaron varias variantes
- * del algoritmo público ampliamente reimplementado en herramientas
- * independientes (mismo patrón que el dígito verificador del RFC) y
- * ninguna reprodujo el "9" del ejemplo resuelto del propio documento —
- * con un solo vector de prueba no es reconstruible con confianza. Se deja
- * como "?" explícito en vez de arriesgar un dígito incorrecto que
- * parezca válido (ver `warnings` en el resultado).
- *
- * El catálogo de entidades federativas (posiciones 12-13) también es de
- * conocimiento público estándar, no viene en este PDF — ver curp-catalog.ts.
+ * Los datos permanecen en memoria del dispositivo. La página que consume
+ * este módulo ejecuta el equivalente WASM en un Web Worker.
  */
 
 import { resolveEntidadFederativaCode, stripDiacritics } from "./curp-catalog.js";
@@ -37,156 +15,159 @@ import { resolveEntidadFederativaCode, stripDiacritics } from "./curp-catalog.js
 export interface CurpInput {
   nombre: string;
   apellidoPaterno: string;
-  /** Si se omite, se usa "X" en las posiciones 3 y 15 — mismo convenio público usado cuando no hay apellido materno. */
   apellidoMaterno?: string;
-  /** Fecha de nacimiento. */
   fechaNacimiento: { year: number; month: number; day: number };
   sexo: "H" | "M";
-  /** Nombre completo o código de 2 letras — ver curp-catalog.ts. */
   entidadFederativa: string;
+  /** Posición 17 asignada por RENAPO. Si se omite se usa el primer valor del siglo. */
+  diferenciador?: string;
 }
 
 export interface CurpResult {
-  /** Las 17 primeras posiciones (verificadas exactas contra el ejemplo del Instructivo) + "?" en la posición 18. */
+  /** CURP candidata de 18 caracteres. */
   curp: string;
-  /** Las 17 primeras posiciones, sin el dígito verificador. */
+  /** Primeras 17 posiciones, antes del dígito verificador. */
   curp17: string;
   warnings: string[];
 }
 
+export interface CurpValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  curp: string;
+}
+
 const VOWELS = new Set(["A", "E", "I", "O", "U"]);
-
-// Prefijos/conjunciones que el algoritmo público (no en el PDF del
-// Instructivo) excluye al determinar la "letra inicial" de un apellido
-// compuesto, ej. "DE LA CRUZ" → se usa "CRUZ", no "DE".
 const NAME_CONNECTORS = new Set(["DE", "DEL", "LA", "LAS", "LOS", "Y", "MC", "VAN", "VON"]);
-
-// Lista pública conocida de combinaciones a evitar en las posiciones 1-4
-// (no viene en el Instructivo) — si las primeras 4 posiciones formarían
-// una de estas palabras, la posición 2 se sustituye por "X". Lista no
-// exhaustiva/no oficial, tomada de herramientas públicas de referencia.
 const INCONVENIENT_WORDS = new Set([
-  "BUEI", "BUEY", "CACA", "CACO", "CAGA", "CAGO", "CAKA", "CAKO",
-  "COGE", "COJA", "COJE", "COJI", "COJO", "CULO", "FETO", "GUEY",
-  "JOTO", "KACA", "KACO", "KAGA", "KAGO", "KOGE", "KOGI", "KOJO",
-  "KAKA", "KAKO", "LILO", "LOCA", "LOCO", "LOKA", "LOKO", "MAME",
-  "MAMO", "MEAR", "MEAS", "MEON", "MION", "MOCO", "MOKO", "MULA",
-  "MULO", "NACA", "NACO", "PEDA", "PEDO", "PENE", "PIPI", "PITO",
-  "POPO", "PUTA", "PUTO", "QULO", "RATA", "ROBA", "ROBE", "ROBO",
-  "RUIN", "SENO", "TETA", "VACA", "VAGA", "VAGO", "VAKA", "VUEI",
-  "VUEY", "WUEI", "WUEY",
+  "BACA", "BAKA", "BUEI", "BUEY", "CACA", "CACO", "CAGA", "CAGO", "CAKA", "CAKO",
+  "COGE", "COGI", "COJA", "COJE", "COJI", "COJO", "COLA", "CULO", "FALO", "FETO",
+  "GETA", "GUEI", "GUEY", "JETA", "JOTO", "KACA", "KACO", "KAGA", "KAGO", "KAKA",
+  "KAKO", "KOGE", "KOGI", "KOJA", "KOJE", "KOJI", "KOJO", "KOLA", "KULO", "LILO",
+  "LOCA", "LOCO", "LOKA", "LOKO", "MAME", "MAMO", "MEAR", "MEAS", "MEON", "MIAR",
+  "MION", "MOCO", "MOKO", "MULA", "MULO", "NACA", "NACO", "PEDA", "PEDO", "PENE",
+  "PIPI", "PITO", "POPO", "PUTA", "PUTO", "QULO", "RATA", "ROBA", "ROBE", "ROBO",
+  "RUIN", "SENO", "TETA", "VACA", "VAGA", "VAGO", "VAKA", "VUEI", "VUEY", "WUEI", "WUEY",
 ]);
 
+/** Tabla pública de interoperabilidad: 0-9, A-N, & (Ñ), O-Z. */
+const CHECKSUM_ALPHABET = "0123456789ABCDEFGHIJKLMN&OPQRSTUVWXYZ";
 
 function normalizeNamePart(value: string): string {
-  // Ñ→X es un convenio distinto a los demás acentos (Á/É/Í/Ó/Ú→A/E/I/O/U):
-  // debe aplicarse ANTES de stripDiacritics, porque la descomposición NFD
-  // de "Ñ" produce "N" + tilde combinante — si stripDiacritics corriera
-  // primero, la Ñ terminaría como "N" en vez de "X" sin que este reemplazo
-  // nunca llegara a verla (bug real encontrado al verificar manualmente
-  // contra el ejemplo del Instructivo antes de escribir los tests).
   const withoutEnye = value.trim().toUpperCase().replace(/Ñ/g, "X");
   return stripDiacritics(withoutEnye).replace(/[^A-Z ]/g, "");
 }
 
-/** Primera "palabra sustantiva" de un apellido/nombre compuesto, saltando conectores conocidos (DE, DEL, LA...). */
 function significantWord(normalized: string): string {
   const words = normalized.split(/\s+/).filter(Boolean);
-  const significant = words.find((w) => !NAME_CONNECTORS.has(w));
-  return significant ?? words[0] ?? "";
+  return words.find((word) => !NAME_CONNECTORS.has(word)) ?? words[0] ?? "";
 }
 
 function firstInternalVowel(word: string): string {
-  for (let i = 1; i < word.length; i++) {
-    if (VOWELS.has(word[i])) return word[i];
-  }
+  for (let i = 1; i < word.length; i++) if (VOWELS.has(word[i])) return word[i];
   return "X";
 }
 
 function firstInternalConsonant(word: string): string {
-  for (let i = 1; i < word.length; i++) {
-    if (!VOWELS.has(word[i]) && word[i] !== " ") return word[i];
-  }
+  for (let i = 1; i < word.length; i++) if (!VOWELS.has(word[i])) return word[i];
   return "X";
 }
 
-function pad2(n: number): string {
-  return String(n).padStart(2, "0");
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function isRealDate(year: number, month: number, day: number): boolean {
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return false;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+function checksumValue(character: string): number {
+  const value = CHECKSUM_ALPHABET.indexOf(character);
+  return value;
+}
+
+/** Calcula la posición 18 a partir de las primeras 17 posiciones. */
+export function computeCurpCheckDigit(curp17: string): string {
+  const normalized = curp17.trim().toUpperCase();
+  if (normalized.length !== 17 || [...normalized].some((c) => checksumValue(c) < 0)) {
+    throw new Error("curp17 debe contener exactamente 17 caracteres CURP");
+  }
+  const sum = [...normalized].reduce((total, character, index) => total + checksumValue(character) * (18 - index), 0);
+  return String((10 - (sum % 10)) % 10);
+}
+
+function validateDifferentiator(differentiator: string, year: number): boolean {
+  return year < 2000 ? /^[0-9]$/.test(differentiator) : /^[A-J]$/.test(differentiator);
+}
+
+function buildFirst17(input: CurpInput, warnings: string[]): string {
+  const apellidoPaterno = significantWord(normalizeNamePart(input.apellidoPaterno));
+  const apellidoMaterno = input.apellidoMaterno ? significantWord(normalizeNamePart(input.apellidoMaterno)) : "";
+  const nombre = significantWord(normalizeNamePart(input.nombre));
+  if (!apellidoPaterno) throw new Error("apellidoPaterno es requerido");
+  if (!nombre) throw new Error("nombre es requerido");
+  if (!apellidoMaterno) warnings.push('apellidoMaterno ausente: se usó "X" en las posiciones 3 y 15.');
+
+  const { year, month, day } = input.fechaNacimiento;
+  if (!isRealDate(year, month, day)) throw new Error("fechaNacimiento no es una fecha válida");
+  if (input.sexo !== "H" && input.sexo !== "M") throw new Error('sexo debe ser "H" o "M"');
+  const entidad = resolveEntidadFederativaCode(input.entidadFederativa);
+
+  let firstFour = apellidoPaterno[0] + firstInternalVowel(apellidoPaterno) + (apellidoMaterno ? apellidoMaterno[0] : "X") + nombre[0];
+  if (INCONVENIENT_WORDS.has(firstFour)) {
+    firstFour = firstFour[0] + "X" + firstFour.slice(2);
+    warnings.push("La combinación inicial es una palabra inconveniente; la posición 2 se sustituyó por X.");
+  }
+
+  const differentiator = (input.diferenciador ?? (year < 2000 ? "0" : "A")).toUpperCase();
+  if (!validateDifferentiator(differentiator, year)) {
+    throw new Error(`diferenciador inválido para el siglo de ${year}: "${differentiator}"`);
+  }
+  if (input.diferenciador === undefined) {
+    warnings.push(`La posición 17 se asumió como "${differentiator}"; la asignación de homonimia corresponde a RENAPO.`);
+  }
+
+  return firstFour + pad2(year % 100) + pad2(month) + pad2(day) + input.sexo + entidad +
+    firstInternalConsonant(apellidoPaterno) + (apellidoMaterno ? firstInternalConsonant(apellidoMaterno) : "X") +
+    firstInternalConsonant(nombre) + differentiator;
 }
 
 export function computeCurp(input: CurpInput): CurpResult {
   const warnings: string[] = [];
+  const curp17 = buildFirst17(input, warnings);
+  return { curp17, curp: curp17 + computeCurpCheckDigit(curp17), warnings };
+}
 
-  const apellidoPaterno = significantWord(normalizeNamePart(input.apellidoPaterno));
-  const apellidoMaterno = input.apellidoMaterno ? significantWord(normalizeNamePart(input.apellidoMaterno)) : "";
-  const nombre = significantWord(normalizeNamePart(input.nombre));
+function dateFromCurp(curp: string): { year: number; month: number; day: number } | null {
+  const yy = Number(curp.slice(4, 6));
+  const year = /^[0-9]$/.test(curp[16]) ? 1900 + yy : 2000 + yy;
+  const month = Number(curp.slice(6, 8));
+  const day = Number(curp.slice(8, 10));
+  return isRealDate(year, month, day) ? { year, month, day } : null;
+}
 
-  if (!apellidoPaterno) throw new Error("apellidoPaterno es requerido");
-  if (!nombre) throw new Error("nombre es requerido");
-  if (!apellidoMaterno) {
-    warnings.push('apellidoMaterno ausente — se usó "X" en las posiciones 3 y 15 (convenio público).');
+/** Valida estructura, fecha, catálogo y dígito; no consulta el padrón oficial. */
+export function validateCurp(curpValue: string, expected?: Omit<CurpInput, "diferenciador">): CurpValidationResult {
+  const curp = curpValue.trim().toUpperCase();
+  const errors: string[] = [];
+  const warnings = ["Validación local: no confirma existencia, vigencia ni titularidad en RENAPO."];
+  if (!/^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[A-Z]{3}[0-9A-J][0-9]$/.test(curp)) {
+    return { valid: false, curp, errors: ["La CURP debe tener 18 caracteres con formato válido."], warnings };
   }
+  const date = dateFromCurp(curp);
+  if (!date) errors.push("La fecha codificada no es válida.");
+  if (date && !validateDifferentiator(curp[16], date.year)) errors.push("La posición 17 no corresponde al siglo de nacimiento.");
+  try { resolveEntidadFederativaCode(curp.slice(11, 13)); } catch { errors.push("La entidad federativa codificada no pertenece al catálogo."); }
+  if (computeCurpCheckDigit(curp.slice(0, 17)) !== curp[17]) errors.push("El dígito verificador no coincide.");
 
-  const { year, month, day } = input.fechaNacimiento;
-  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
-    throw new Error("fechaNacimiento debe tener year/month/day enteros");
+  if (expected && errors.length === 0) {
+    try {
+      const candidate = computeCurp({ ...expected, diferenciador: curp[16] });
+      if (candidate.curp.slice(0, 16) !== curp.slice(0, 16)) errors.push("Las primeras 16 posiciones no corresponden a los datos proporcionados.");
+    } catch (error) { errors.push(error instanceof Error ? error.message : String(error)); }
   }
-  if (month < 1 || month > 12) throw new Error(`Mes de nacimiento inválido: ${month}`);
-  if (day < 1 || day > 31) throw new Error(`Día de nacimiento inválido: ${day}`);
-
-  const entidadCode = resolveEntidadFederativaCode(input.entidadFederativa);
-
-  // Posiciones 1-4
-  let pos1to4 =
-    apellidoPaterno[0] +
-    firstInternalVowel(apellidoPaterno) +
-    (apellidoMaterno ? apellidoMaterno[0] : "X") +
-    nombre[0];
-
-  if (INCONVENIENT_WORDS.has(pos1to4)) {
-    pos1to4 = pos1to4[0] + "X" + pos1to4[2] + pos1to4[3];
-    warnings.push(`Las posiciones 1-4 coincidían con una palabra a evitar — se sustituyó la posición 2 por "X" (convenio público, no en el Instructivo).`);
-  }
-
-  // Posiciones 5-10: fecha de nacimiento AAMMDD
-  const yy = pad2(year % 100);
-  const mm = pad2(month);
-  const dd = pad2(day);
-
-  // Posición 11
-  const sexo = input.sexo;
-
-  // Posiciones 12-13
-  const entidad = entidadCode;
-
-  // Posiciones 14-16
-  const pos14to16 =
-    firstInternalConsonant(apellidoPaterno) +
-    (apellidoMaterno ? firstInternalConsonant(apellidoMaterno) : "X") +
-    firstInternalConsonant(nombre);
-
-  // Posición 17: diferenciador de homonimia + siglo. No se puede
-  // determinar sin consultar la BDNCURP (base en vivo de RENAPO) — se usa
-  // el valor por defecto de "sin homónimos detectados" y se advierte.
-  const differentiator = year >= 2000 ? "A" : "0";
-  warnings.push(
-    `Posición 17 (diferenciador de homonimia) asumida en "${differentiator}" por no poder consultar la BDNCURP en vivo — no está verificado que este valor sea el que RENAPO asignaría realmente si ya existiera un registro con las mismas primeras 16 posiciones.`
-  );
-
-  const first17 = pos1to4 + yy + mm + dd + sexo + entidad + pos14to16 + differentiator;
-
-  // Posición 18 (dígito verificador): el Instructivo confirma que existe
-  // un algoritmo de la Secretaría de Gobernación para calcularlo, pero no
-  // lo publica. Se intentaron varias variantes del algoritmo público
-  // ampliamente reimplementado en herramientas independientes (mismo
-  // patrón que el dígito verificador del RFC) y ninguna reprodujo el "9"
-  // del ejemplo resuelto del propio Instructivo — con un solo vector de
-  // prueba no es posible reconstruir con confianza una fórmula de 17
-  // pesos desconocidos por prueba y error. Se deja explícitamente sin
-  // calcular en vez de arriesgar un dígito incorrecto que parezca válido.
-  warnings.push(
-    'Posición 18 (dígito verificador) NO se calculó — el algoritmo exacto no está publicado en el Instructivo y los intentos con la fórmula pública conocida no reprodujeron el ejemplo resuelto del propio documento. "curp" trae "?" en esa posición; "curp17" trae las 17 posiciones sin el dígito.'
-  );
-
-  return { curp: first17 + "?", curp17: first17, warnings };
+  return { valid: errors.length === 0, curp, errors, warnings };
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeCurp } from "../curp.js";
+import { computeCurp, computeCurpCheckDigit, validateCurp } from "../curp.js";
 import { resolveEntidadFederativaCode } from "../curp-catalog.js";
 
 describe("computeCurp", () => {
@@ -15,12 +15,8 @@ describe("computeCurp", () => {
       entidadFederativa: "Distrito Federal",
     });
 
-    // Las 17 primeras posiciones coinciden exactas con el documento — la
-    // posición 18 (dígito verificador) queda explícitamente sin calcular
-    // (ver comentario en curp.ts), representada como "?".
     expect(result.curp17).toBe("SABC560626MDFLRN0");
-    expect(result.curp).toBe("SABC560626MDFLRN0?");
-    expect(result.warnings.some((w) => w.includes("dígito verificador"))).toBe(true);
+    expect(result.curp).toBe("SABC560626MDFLRN01");
   });
 
   it("acepta el código de entidad de 2 letras directamente", () => {
@@ -88,14 +84,20 @@ describe("computeCurp", () => {
       computeCurp({
         nombre: "Ana",
         apellidoPaterno: "Ruiz",
-        fechaNacimiento: { year: 1990, month: 13, day: 1 },
+        fechaNacimiento: { year: 2020, month: 2, day: 30 },
         sexo: "M",
         entidadFederativa: "Jalisco",
       })
-    ).toThrow("Mes de nacimiento inválido");
+    ).toThrow("fechaNacimiento no es una fecha válida");
   });
 
   it("rechaza entidad federativa no reconocida", () => {
     expect(() => resolveEntidadFederativaCode("Narnia")).toThrow("Entidad federativa no reconocida");
+  });
+
+  it("calcula y valida el dígito verificador", () => {
+    expect(computeCurpCheckDigit("BOXW310820HNERXN0")).toBe("9");
+    expect(validateCurp("BOXW310820HNERXN09").valid).toBe(true);
+    expect(validateCurp("BOXW310820HNERXN08").valid).toBe(false);
   });
 });

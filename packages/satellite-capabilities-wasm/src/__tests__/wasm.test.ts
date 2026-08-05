@@ -21,6 +21,7 @@ const WASM_PATH = join(__dirname, "../../build/satellite-capabilities.wasm");
 interface SatelliteExports extends Record<string, unknown> {
   solveExpression(ptr: number): number;
   computeCurpEncoded(ptr: number): number;
+  validateCurpEncoded(ptr: number): number;
 }
 
 type WasmInstance = ResultObject & { exports: ASUtil & SatelliteExports };
@@ -122,11 +123,11 @@ describe("CURP — caso dorado Instructivo (Concepción Salgado Briseño, 26/06/
     expect(ts.curp17).toBe("SABC560626MDFLRN0");
   });
 
-  it("curp17 WASM = SABC560626MDFLRN0", () => {
+  it("CURP WASM = SABC560626MDFLRN01", () => {
     const raw = wasmCurpEncoded(goldenInput);
     expect(raw).toMatch(/^OK:/);
-    const curp17 = raw.slice(3).split("|")[0];
-    expect(curp17).toBe("SABC560626MDFLRN0");
+    const curp = raw.slice(3).split("|")[0];
+    expect(curp).toBe("SABC560626MDFLRN01");
   });
 
   it("curp17 WASM coincide exactamente con curp17 TS", () => {
@@ -139,8 +140,8 @@ describe("CURP — caso dorado Instructivo (Concepción Salgado Briseño, 26/06/
       entidadFederativa: goldenInput.entidad,
     });
     const raw = wasmCurpEncoded(goldenInput);
-    const curp17 = raw.slice(3).split("|")[0];
-    expect(curp17).toBe(ts.curp17);
+    const curp = raw.slice(3).split("|")[0];
+    expect(curp).toBe(ts.curp);
   });
 });
 
@@ -167,5 +168,11 @@ describe("CURP — casos borde", () => {
     const outPtr = wasm.exports.computeCurpEncoded(inPtr);
     const result = wasm.exports.__getString(outPtr);
     expect(result).toMatch(/^ERR:/);
+  });
+
+  it("valida una CURP completa en WASM", () => {
+    const inPtr = wasm.exports.__newString("BOXW310820HNERXN09");
+    const outPtr = wasm.exports.validateCurpEncoded(inPtr);
+    expect(wasm.exports.__getString(outPtr)).toMatch(/^OK:/);
   });
 });

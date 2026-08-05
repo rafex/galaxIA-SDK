@@ -1,0 +1,14 @@
+server {
+    listen 443 ssl;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    ssl_certificate     /etc/nginx/certs/curp-web.crt;
+    ssl_certificate_key /etc/nginx/certs/curp-web.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

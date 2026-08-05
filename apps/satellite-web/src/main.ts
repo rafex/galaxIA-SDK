@@ -51,8 +51,9 @@ mathForm.addEventListener("submit", (e) => {
 
 const curpForm = document.getElementById("curp-form") as HTMLFormElement;
 const curpResult = document.getElementById("curp-result") as HTMLElement;
-const curp17El = document.getElementById("curp17") as HTMLElement;
 const curpFull = document.getElementById("curp-full") as HTMLElement;
+const validateForm = document.getElementById("curp-validate-form") as HTMLFormElement;
+const validateResult = document.getElementById("curp-validate-result") as HTMLElement;
 
 curpForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -65,21 +66,38 @@ curpForm.addEventListener("submit", (e) => {
   const sexo   = (document.getElementById("sexo") as HTMLSelectElement).value;
   const entidad= (document.getElementById("entidad") as HTMLInputElement).value.trim();
 
-  const encoded = [nombre, apPat, apMat, year, month, day, sexo, entidad].join("|");
-  curp17El.textContent = "";
+  const diferenciador = (document.getElementById("diferenciador") as HTMLInputElement).value.trim().toUpperCase();
+  const encoded = [nombre, apPat, apMat, year, month, day, sexo, entidad, diferenciador].join("|");
   curpFull.textContent = "";
   curpResult.className = "result loading";
-  curpResult.textContent = "calculando…";
+  curpResult.textContent = "calculando localmente en WASM…";
 
-  void callWorker({ type: "curp", encoded }).then((raw) => {
+  void callWorker({ type: "curp-create", encoded }).then((raw) => {
     if (raw.startsWith("OK:")) {
-      const [c17, ...warnParts] = raw.slice(3).split("|");
-      curp17El.textContent = c17 + "?";
+      const [curp, ...warnParts] = raw.slice(3).split("|");
+      curpFull.textContent = curp;
       curpResult.className = "result ok";
-      curpResult.textContent = warnParts.filter(Boolean).join(" • ");
+      curpResult.textContent = warnParts.filter(Boolean).join(" • ") || "CURP candidata calculada localmente.";
     } else {
       curpResult.className = "result err";
       curpResult.textContent = raw.startsWith("ERR:") ? raw.slice(4) : raw;
+    }
+  });
+});
+
+validateForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const curp = (document.getElementById("curp-value") as HTMLInputElement).value.trim();
+  validateResult.className = "result loading";
+  validateResult.textContent = "validando localmente en WASM…";
+  void callWorker({ type: "curp-validate", curp }).then((raw) => {
+    if (raw.startsWith("OK:")) {
+      const [, ...warnings] = raw.slice(3).split("|");
+      validateResult.className = "result ok";
+      validateResult.textContent = warnings.filter(Boolean).join(" • ") || "CURP estructuralmente válida.";
+    } else {
+      validateResult.className = "result err";
+      validateResult.textContent = raw.startsWith("ERR:") ? raw.slice(4) : raw;
     }
   });
 });

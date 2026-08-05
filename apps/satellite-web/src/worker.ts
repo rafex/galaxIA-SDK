@@ -4,7 +4,8 @@
  *
  * Protocolo de mensajes:
  *   → { id: number, type: 'solve', expr: string }
- *   → { id: number, type: 'curp', encoded: string }
+ *   → { id: number, type: 'curp-create', encoded: string }
+ *   → { id: number, type: 'curp-validate', curp: string }
  *   ← { id: number, result: string }   (prefixo OK: o ERR:)
  */
 
@@ -14,13 +15,15 @@ import wasmUrl from "../../../packages/satellite-capabilities-wasm/build/satelli
 interface SatelliteExports extends Record<string, unknown> {
   solveExpression(ptr: number): number;
   computeCurpEncoded(ptr: number): number;
+  validateCurpEncoded(ptr: number): number;
 }
 
 type WasmInstance = ResultObject & { exports: ASUtil & SatelliteExports };
 
 type IncomingMessage =
   | { id: number; type: "solve"; expr: string }
-  | { id: number; type: "curp"; encoded: string };
+  | { id: number; type: "curp-create"; encoded: string }
+  | { id: number; type: "curp-validate"; curp: string };
 
 let wasmInstance: WasmInstance | null = null;
 
@@ -48,9 +51,13 @@ self.addEventListener("message", (event: MessageEvent<IncomingMessage>) => {
         const inPtr = exports.__newString(msg.expr);
         const outPtr = exports.solveExpression(inPtr);
         result = exports.__getString(outPtr);
-      } else {
+      } else if (msg.type === "curp-create") {
         const inPtr = exports.__newString(msg.encoded);
         const outPtr = exports.computeCurpEncoded(inPtr);
+        result = exports.__getString(outPtr);
+      } else {
+        const inPtr = exports.__newString(msg.curp);
+        const outPtr = exports.validateCurpEncoded(inPtr);
         result = exports.__getString(outPtr);
       }
     } catch (e) {
