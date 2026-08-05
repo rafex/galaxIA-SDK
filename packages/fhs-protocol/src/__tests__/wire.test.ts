@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   ArtifactRefSchema,
-  AttachmentDecisionMessageSchema,
+  ChatRequestMessageSchema,
+  DocumentContextSchema,
   DynamicValueSchema,
   EnvelopeSchema,
   InlineArtifactSchema,
@@ -82,7 +83,7 @@ describe("FHS Protobuf wire codec", () => {
     expect(decoded.kind.value.transport.value.filename).toBe("scan.png");
   });
 
-  it("serializa el ciclo Portal de adjunto y decisión sin JSON", () => {
+  it("serializa el ciclo Portal de OCR y contexto documental sin JSON", () => {
     const extracted = newEnvelope({
       sourcePeerId: "did:key:zNavigator",
       payload: {
@@ -101,18 +102,25 @@ describe("FHS Protobuf wire codec", () => {
         }),
       },
     });
-    const decision = newEnvelope({
+    const request = newEnvelope({
       sourcePeerId: "did:key:zPortal",
       payload: {
-        case: "attachmentDecision",
-        value: create(AttachmentDecisionMessageSchema, { missionId: "m-1", use: true }),
+        case: "chatRequest",
+        value: create(ChatRequestMessageSchema, {
+          missionId: "m-1",
+          messages: [{ role: "user", content: "¿qué contiene?" }],
+          documentContext: create(DocumentContextSchema, { filename: "scan.pdf", text: "texto" }),
+        }),
       },
     });
 
     expect(decodeEnvelopeFrame(encodeEnvelopeFrame(extracted)).envelope.payload.case).toBe("ocrExtracted");
     expect(decodeEnvelopeFrame(encodeEnvelopeFrame(recommendation)).envelope.payload.case).toBe("kbRecommended");
-    const decodedDecision = decodeEnvelopeFrame(encodeEnvelopeFrame(decision)).envelope;
-    expect(decodedDecision.payload.case).toBe("attachmentDecision");
-    if (decodedDecision.payload.case === "attachmentDecision") expect(decodedDecision.payload.value.use).toBe(true);
+    const decodedRequest = decodeEnvelopeFrame(encodeEnvelopeFrame(request)).envelope;
+    expect(decodedRequest.payload.case).toBe("chatRequest");
+    if (decodedRequest.payload.case === "chatRequest") {
+      expect(decodedRequest.payload.value.documentContext?.filename).toBe("scan.pdf");
+      expect(decodedRequest.payload.value.documentContext?.text).toBe("texto");
+    }
   });
 });
