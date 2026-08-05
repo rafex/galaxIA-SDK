@@ -1,6 +1,6 @@
 {
   "name": "@rafex/galaxia-satellite-capabilities",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
   "description": "L\u00f3gica pura y portable (sin APIs de Node) de las primeras capacidades pensadas para un Ephemeral Satellite (nodo WASM en navegador) \u2014 aritm\u00e9tica y c\u00f3mputo de CURP.",
