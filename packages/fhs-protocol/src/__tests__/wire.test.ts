@@ -10,6 +10,7 @@ import {
   KbRecommendedMessageSchema,
   OcrExtractedMessageSchema,
   PingMessageSchema,
+  RagSource,
 } from "../generated/fhs-protocol_pb.js";
 import {
   decodeEnvelopeFrame,
@@ -109,7 +110,13 @@ describe("FHS Protobuf wire codec", () => {
         value: create(ChatRequestMessageSchema, {
           missionId: "m-1",
           messages: [{ role: "user", content: "¿qué contiene?" }],
-          documentContext: create(DocumentContextSchema, { filename: "scan.pdf", text: "texto" }),
+          documentId: "doc-1",
+          documentContext: create(DocumentContextSchema, {
+            filename: "scan.pdf",
+            documentId: "doc-1",
+            source: RagSource.LOCAL,
+            chunks: [{ chunkId: "chunk-1", filename: "scan.pdf", chunkIndex: 0, text: "texto", score: 0.9 }],
+          }),
         }),
       },
     });
@@ -120,7 +127,9 @@ describe("FHS Protobuf wire codec", () => {
     expect(decodedRequest.payload.case).toBe("chatRequest");
     if (decodedRequest.payload.case === "chatRequest") {
       expect(decodedRequest.payload.value.documentContext?.filename).toBe("scan.pdf");
-      expect(decodedRequest.payload.value.documentContext?.text).toBe("texto");
+      expect(decodedRequest.payload.value.documentId).toBe("doc-1");
+      expect(decodedRequest.payload.value.documentContext?.chunks[0]?.text).toBe("texto");
+      expect(decodedRequest.payload.value.documentContext?.text).toBe("");
     }
   });
 });
