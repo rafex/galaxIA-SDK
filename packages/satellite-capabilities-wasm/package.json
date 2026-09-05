@@ -1,9 +1,9 @@
 {
   "name": "@rafex/galaxia-satellite-capabilities-wasm",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": false,
   "type": "module",
-  "description": "Capacidades de aritmética y CURP compiladas desde Rust a WASM para un Ephemeral Satellite.",
+  "description": "Capacidades de aritm\u00e9tica y CURP compiladas desde Rust a WASM para un Ephemeral Satellite.",
   "files": [
     "pkg"
   ],
