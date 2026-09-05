@@ -1,0 +1,20 @@
+[package]
+name = "galaxia-satellite-capabilities-wasm"
+version = "0.1.4"
+edition = "2021"
+description = "Capacidades CURP y aritmética compiladas desde Rust a WebAssembly."
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2.100"
+
+[profile.release]
+# CURP es cómputo local en el dispositivo; priorizamos rendimiento sobre
+# unos pocos bytes del asset WASM.
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

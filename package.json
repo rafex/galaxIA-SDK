@@ -19,11 +19,9 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@assemblyscript/loader": "0.28.20",
     "@types/node": "20.19.43",
     "@typescript-eslint/eslint-plugin": "8.63.0",
     "@typescript-eslint/parser": "8.63.0",
-    "assemblyscript": "0.28.20",
     "eslint": "10.6.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.63.0",

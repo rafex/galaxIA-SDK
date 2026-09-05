@@ -1,68 +1,44 @@
 /**
- * Web Worker que carga el módulo WASM satellite-capabilities y expone
- * las dos capacidades (aritmética + CURP) vía postMessage.
- *
- * Protocolo de mensajes:
- *   → { id: number, type: 'solve', expr: string }
- *   → { id: number, type: 'curp-create', encoded: string }
- *   → { id: number, type: 'curp-validate', curp: string }
- *   ← { id: number, result: string }   (prefixo OK: o ERR:)
+ * Web Worker para las capacidades Rust/WASM del Ephemeral Satellite.
+ * El módulo se genera con wasm-pack y todas las operaciones permanecen
+ * localmente en el dispositivo.
  */
 
-import { type ASUtil, instantiateStreaming, type ResultObject } from "@assemblyscript/loader";
-import wasmUrl from "../../../packages/satellite-capabilities-wasm/build/satellite-capabilities.wasm?url";
+import initRustWasm, {
+  compute_curp_encoded,
+  solve_expression,
+  validate_curp_encoded,
+} from "../../../packages/satellite-capabilities-wasm/pkg/satellite_capabilities.js";
+import wasmUrl from "../../../packages/satellite-capabilities-wasm/pkg/satellite_capabilities_bg.wasm?url";
 
-interface SatelliteExports extends Record<string, unknown> {
-  solveExpression(ptr: number): number;
-  computeCurpEncoded(ptr: number): number;
-  validateCurpEncoded(ptr: number): number;
+interface IncomingMessage {
+  id: number;
+  type: "solve" | "curp-create" | "curp-validate";
+  expr?: string;
+  encoded?: string;
+  curp?: string;
 }
 
-type WasmInstance = ResultObject & { exports: ASUtil & SatelliteExports };
+let wasmReady: Promise<void> | undefined;
 
-type IncomingMessage =
-  | { id: number; type: "solve"; expr: string }
-  | { id: number; type: "curp-create"; encoded: string }
-  | { id: number; type: "curp-validate"; curp: string };
-
-let wasmInstance: WasmInstance | null = null;
-
-async function init(): Promise<void> {
-  const response = await fetch(wasmUrl);
-  wasmInstance = await instantiateStreaming<SatelliteExports>(response, {
-    env: {
-      abort(_msgPtr: number, _filePtr: number, line: number, _col: number): void {
-        console.error(`[satellite-wasm] abort at line ${line}`);
-      },
-    },
-  });
+function init(): Promise<void> {
+  wasmReady ??= initRustWasm(wasmUrl);
+  return wasmReady;
 }
-
-const ready = init();
 
 self.addEventListener("message", (event: MessageEvent<IncomingMessage>) => {
   const msg = event.data;
-  void ready.then(() => {
-    if (!wasmInstance) { self.postMessage({ id: msg.id, result: "ERR:WASM no inicializado" }); return; }
-    const { exports } = wasmInstance;
+  void init().then(() => {
     let result: string;
     try {
-      if (msg.type === "solve") {
-        const inPtr = exports.__newString(msg.expr);
-        const outPtr = exports.solveExpression(inPtr);
-        result = exports.__getString(outPtr);
-      } else if (msg.type === "curp-create") {
-        const inPtr = exports.__newString(msg.encoded);
-        const outPtr = exports.computeCurpEncoded(inPtr);
-        result = exports.__getString(outPtr);
-      } else {
-        const inPtr = exports.__newString(msg.curp);
-        const outPtr = exports.validateCurpEncoded(inPtr);
-        result = exports.__getString(outPtr);
-      }
-    } catch (e) {
-      result = "ERR:" + String(e);
+      if (msg.type === "solve") result = solve_expression(msg.expr ?? "");
+      else if (msg.type === "curp-create") result = compute_curp_encoded(msg.encoded ?? "");
+      else result = validate_curp_encoded(msg.curp ?? "");
+    } catch (error) {
+      result = `ERR:${String(error)}`;
     }
     self.postMessage({ id: msg.id, result });
+  }).catch((error: unknown) => {
+    self.postMessage({ id: msg.id, result: `ERR:Rust WASM no inicializado: ${String(error)}` });
   });
 });

@@ -1,7 +1,7 @@
 # Servicio CURP local
 
 `satellite-web` publica una página HTTPS estática que ejecuta la construcción
-y validación estructural de CURP en WebAssembly dentro de un Web Worker. Está
+y validación estructural de CURP en Rust compilado a WebAssembly dentro de un Web Worker. Está
 pensada para abrirse desde un celular conectado a la red GalaxIA; no existe
 API HTTP de aplicación ni se envían nombres, apellidos o fechas a un servidor.
 
@@ -32,6 +32,9 @@ npm run build -w packages/satellite-capabilities
 npm run build -w packages/satellite-capabilities-wasm
 npm run dev -w apps/satellite-web
 ```
+
+El paquete `satellite-capabilities-wasm` se compila con `wasm-pack` desde
+`packages/satellite-capabilities-wasm/src/lib.rs`; no se usa AssemblyScript.
 
 La compilación de producción genera el WASM y lo empaqueta como asset del
 frontend. Para el despliegue E2E se usa

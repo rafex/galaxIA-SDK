@@ -5,7 +5,11 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# WASM compilado (generado por asc)
+# Artefactos WASM generados por wasm-pack; se conserva el .d.ts para typecheck.
+packages/satellite-capabilities-wasm/pkg/*.js
+packages/satellite-capabilities-wasm/pkg/*_bg.wasm
+packages/satellite-capabilities-wasm/pkg/*.wasm.d.ts
+packages/satellite-capabilities-wasm/target/
 packages/satellite-capabilities-wasm/build/
 
 # Los contratos wire FHS se generan desde Protobuf; no se publican JSON schemas.

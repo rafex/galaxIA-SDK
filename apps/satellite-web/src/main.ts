@@ -1,6 +1,6 @@
 /**
  * Ephemeral Satellite — demo de navegador.
- * Las dos capacidades (aritmética y CURP) corren como WASM real
+ * Las dos capacidades (aritmética y CURP) corren como Rust/WASM real
  * dentro de un Web Worker, sin servidor backend.
  */
 
