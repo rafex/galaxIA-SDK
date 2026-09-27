@@ -1,0 +1,32 @@
+[package]
+name = "galaxia-fhs"
+version = "0.1.0"
+edition = "2021"
+description = "Protocolo FHS de galaxIA en Rust: IDL, firmas, nodo libp2p, misiones y provider"
+license = "MIT"
+publish = false
+
+[dependencies]
+bs58 = "0.5"
+ed25519-dalek = "2"
+futures = "0.3"
+hex = "0.4"
+libp2p = { version = "0.57", features = ["tokio", "tcp", "dns", "websocket", "noise", "yamux", "gossipsub", "kad", "identify", "ping", "macros", "ed25519"] }
+libp2p-stream = "0.5.0-alpha"
+prost = "0.13"
+rustls-pemfile = "2"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+webpki-roots = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
+
+[build-dependencies]
+prost-build = "0.13"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }

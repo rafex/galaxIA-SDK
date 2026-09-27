@@ -81,3 +81,23 @@ jobs:
           npm run build -w packages/satellite-capabilities
           npm run build -w packages/satellite-capabilities-wasm
           npm run build -w apps/satellite-web
+
+  rust-fhs:
+    # Crate galaxia-fhs (rust/): IDL canónico, fixtures del wire TS y una
+    # misión completa entre nodos libp2p reales en 127.0.0.1.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: protoc para prost-build
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - name: IDL igual al canónico (hash del snapshot)
+        run: cd fhs && sh scripts/check-idl.sh
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -p galaxia-fhs -- -D warnings
+      - run: cargo test -p galaxia-fhs

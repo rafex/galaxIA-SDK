@@ -1,0 +1,14 @@
+# Crates Rust del SDK de galaxIA. Los consumidores (galaxIA-agent, providers,
+# Atlas) dependen de `galaxia-fhs` por git y deben repetir el [patch] de
+# libp2p-websocket apuntando a este mismo repo: los [patch] de una dependencia
+# no se heredan. Ver vendor/libp2p-websocket/GALAXIA-PATCH.md.
+[workspace]
+resolver = "2"
+members = ["fhs", "vendor/libp2p-websocket"]
+
+[patch.crates-io]
+libp2p-websocket = { path = "vendor/libp2p-websocket" }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
