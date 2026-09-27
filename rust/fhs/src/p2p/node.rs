@@ -234,6 +234,9 @@ pub struct NodeHandle {
     connected: watch::Receiver<HashSet<PeerId>>,
     /// Se avisa en cada conexión nueva (el TS se anuncia en `peer:connect`).
     peer_connected: Arc<Notify>,
+    /// Se avisa al recuperar la conexión con un bootstrap: si reinició, perdió
+    /// los registros del DHT y hay que volver a publicar el beacon.
+    bootstrap_reconnected: Arc<Notify>,
     offers: broadcast::Sender<MissionOfferMessage>,
     assigns: broadcast::Sender<MissionAssignMessage>,
     announce: Arc<Vec<Multiaddr>>,
@@ -387,6 +390,7 @@ pub fn start(config: NodeConfig) -> Result<NodeHandle, NodeError> {
         control,
         connected,
         peer_connected: Arc::new(Notify::new()),
+        bootstrap_reconnected: Arc::new(Notify::new()),
         offers: broadcast::channel(64).0,
         assigns: broadcast::channel(64).0,
         announce: Arc::new(config.announce.clone()),
@@ -784,6 +788,9 @@ async fn bootstrap_loop(handle: NodeHandle, addr: Multiaddr) {
                         "conectado"
                     };
                     tracing::info!("bootstrap {what}: {addr} (intento {attempt})");
+                    if connected_once {
+                        handle.bootstrap_reconnected.notify_one();
+                    }
                     connected_once = true;
                     backoff = BOOTSTRAP_INITIAL_BACKOFF;
                     attempt = 0;
@@ -825,8 +832,8 @@ fn own_addrs(
         .collect()
 }
 
-/// Publica el `DhtBeaconRecord` firmado al conectar con un bootstrap y cada
-/// 30 min. Si falla, el Portal usa las direcciones del anuncio GossipSub.
+/// Publica el `DhtBeaconRecord` firmado al conectar con un bootstrap, cada
+/// 30 min y al recuperar la conexión con un bootstrap (que pudo reiniciar). Si falla, el Portal usa las direcciones del anuncio GossipSub.
 async fn dht_beacon_loop(
     handle: NodeHandle,
     beacon: Beacon,
@@ -849,7 +856,12 @@ async fn dht_beacon_loop(
         handle
             .put_record(wire::dht_beacon_key(&handle.identity.did), record)
             .await;
-        tokio::time::sleep(DHT_REPUBLISH_INTERVAL).await;
+        tokio::select! {
+            () = tokio::time::sleep(DHT_REPUBLISH_INTERVAL) => {}
+            () = handle.bootstrap_reconnected.notified() => {
+                tracing::info!("bootstrap recuperado: se vuelve a publicar el beacon DHT");
+            }
+        }
     }
 }
 
