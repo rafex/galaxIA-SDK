@@ -1,12 +1,20 @@
 //! JSON ↔ `DynamicValue` (argumentos y resultados de tools), con las mismas
-//! reglas que `dynamicValueFromUnknown` / `dynamicValueToUnknown` del TS:
-//! enteros y decimales se distinguen, `null` no se admite.
+//! reglas que `dynamicValueFromLocal` / `dynamicValueToJson` de `fhs-wire`:
+//! enteros y decimales se distinguen, `null` no se admite y un `ArtifactRef`
+//! se ve en JSON como `{transport: "inline", base64, filename}` o
+//! `{transport: "ipfs", cid, network, gatewayUrl, filename, retention}`.
 
 use std::collections::HashMap;
 
+use base64::Engine;
 use serde_json::{Map, Number, Value};
 
-use crate::protocol::fhs::{dynamic_value::Kind, DynamicList, DynamicObject, DynamicValue};
+use crate::protocol::fhs::{
+    artifact_ref::Transport, dynamic_value::Kind, ArtifactRef, DynamicList, DynamicObject,
+    DynamicValue, InlineArtifact, IpfsArtifact,
+};
+
+const BASE64: base64::engine::GeneralPurpose = base64::engine::general_purpose::STANDARD;
 
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 #[error("DynamicValue no admite null (en {0})")]
@@ -32,6 +40,9 @@ fn from_json_at(value: &Value, path: &str) -> Result<DynamicValue, NullNotAllowe
                 .map(|(i, item)| from_json_at(item, &format!("{path}[{i}]")))
                 .collect::<Result<_, _>>()?,
         }),
+        Value::Object(_) if artifact_from_json(value).is_some() => {
+            Kind::ArtifactRef(artifact_from_json(value).unwrap_or_default())
+        }
         Value::Object(map) => Kind::ObjectValue(DynamicObject {
             fields: map
                 .iter()
@@ -51,7 +62,7 @@ pub fn to_json(value: &DynamicValue) -> Value {
             .map(Value::Number)
             .unwrap_or(Value::Null),
         Some(Kind::StringValue(s)) => Value::String(s.clone()),
-        Some(Kind::BytesValue(bytes)) => Value::String(base64_encode(bytes)),
+        Some(Kind::BytesValue(bytes)) => Value::String(BASE64.encode(bytes)),
         Some(Kind::ListValue(list)) => Value::Array(list.values.iter().map(to_json).collect()),
         Some(Kind::ObjectValue(object)) => {
             let mut map = Map::new();
@@ -62,28 +73,66 @@ pub fn to_json(value: &DynamicValue) -> Value {
             }
             Value::Object(map)
         }
-        Some(Kind::ArtifactRef(artifact)) => {
-            serde_json::json!({ "artifactRef": format!("{artifact:?}") })
-        }
+        Some(Kind::ArtifactRef(artifact)) => artifact_to_json(artifact),
     }
 }
 
-fn base64_encode(bytes: &[u8]) -> String {
-    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
-    for chunk in bytes.chunks(3) {
-        let n = (u32::from(chunk[0]) << 16)
-            | (u32::from(*chunk.get(1).unwrap_or(&0)) << 8)
-            | u32::from(*chunk.get(2).unwrap_or(&0));
-        for i in 0..4 {
-            if i <= chunk.len() {
-                out.push(ALPHABET[((n >> (18 - 6 * i)) & 63) as usize] as char);
-            } else {
-                out.push('=');
-            }
+/// `ArtifactRef` → JSON local de `fhs-wire` (`artifactRefFromProto`).
+pub fn artifact_to_json(artifact: &ArtifactRef) -> Value {
+    let mut map = Map::new();
+    let mut put = |key: &str, value: &str| {
+        if !value.is_empty() {
+            map.insert(key.into(), Value::String(value.into()));
         }
+    };
+    match &artifact.transport {
+        Some(Transport::Inline(inline)) => {
+            put("transport", "inline");
+            put("filename", &inline.filename);
+            map.insert("base64".into(), Value::String(BASE64.encode(&inline.data)));
+        }
+        Some(Transport::Ipfs(ipfs)) => {
+            put("transport", "ipfs");
+            put("cid", &ipfs.cid);
+            put("network", &ipfs.network);
+            put("gatewayUrl", &ipfs.gateway_url);
+            put("filename", &ipfs.filename);
+            let retention = if ipfs.retention == "reuse" {
+                "reuse"
+            } else {
+                "ephemeral"
+            };
+            put("retention", retention);
+        }
+        None => return Value::Null,
     }
-    out
+    Value::Object(map)
+}
+
+/// JSON local → `ArtifactRef`, si `transport` es `inline` o `ipfs`
+/// (`isArtifactRef` + `artifactRefToProto` de `fhs-wire`).
+pub fn artifact_from_json(value: &Value) -> Option<ArtifactRef> {
+    let text = |key: &str| value[key].as_str().unwrap_or_default().to_string();
+    let transport = match value["transport"].as_str()? {
+        "inline" => Transport::Inline(InlineArtifact {
+            data: BASE64.decode(text("base64")).ok()?,
+            filename: text("filename"),
+        }),
+        "ipfs" => Transport::Ipfs(IpfsArtifact {
+            cid: text("cid"),
+            network: text("network"),
+            gateway_url: text("gatewayUrl"),
+            filename: text("filename"),
+            retention: match value["retention"].as_str() {
+                Some("reuse") => "reuse".into(),
+                _ => "ephemeral".into(),
+            },
+        }),
+        _ => return None,
+    };
+    Some(ArtifactRef {
+        transport: Some(transport),
+    })
 }
 
 #[cfg(test)]
@@ -118,8 +167,28 @@ mod tests {
     }
 
     #[test]
-    fn base64_matches_standard_padding() {
-        assert_eq!(base64_encode(b"hola"), "aG9sYQ==");
-        assert_eq!(base64_encode(b"abc"), "YWJj");
+    fn artifacts_travel_as_the_ts_local_shape() {
+        let json = serde_json::json!({
+            "file": {"transport": "inline", "base64": "aG9sYQ==", "filename": "a.pdf"},
+            "lang": "spa"
+        });
+        let value = from_json(&json).unwrap();
+        let Some(Kind::ObjectValue(object)) = &value.kind else {
+            panic!("objeto")
+        };
+        let Some(Kind::ArtifactRef(artifact)) = &object.fields["file"].kind else {
+            panic!("el archivo debe viajar como ArtifactRef")
+        };
+        let Some(Transport::Inline(inline)) = &artifact.transport else {
+            panic!("inline")
+        };
+        assert_eq!(inline.data, b"hola");
+        assert_eq!(to_json(&value), json);
+
+        let ipfs = serde_json::json!({"transport": "ipfs", "cid": "bafy", "network": "public", "retention": "ephemeral"});
+        assert_eq!(to_json(&from_json(&ipfs).unwrap()), ipfs);
+        // Un objeto con otro `transport` sigue siendo un objeto.
+        let other = serde_json::json!({"transport": "tcp"});
+        assert_eq!(to_json(&from_json(&other).unwrap()), other);
     }
 }
