@@ -1,12 +1,15 @@
-//! Identidad del nodo: la misma que usa el Navigator TS.
+//! Identidad del nodo: la misma que usan los nodos TS.
 //!
-//! El archivo (`IDENTITY_KEY_PATH`) es JSON `{ "privateKeyHex": … }` con la
-//! llave privada Ed25519 en la codificación protobuf de libp2p
-//! (`privateKeyToProtobuf` en JS, `Keypair::to_protobuf_encoding` aquí). Así el
-//! reemplazo conserva PeerId y DID usando el mismo volumen `navigator-data`.
+//! El archivo (`IDENTITY_KEY_PATH`) guarda la llave privada Ed25519 en la
+//! codificación protobuf de libp2p (`privateKeyToProtobuf` en JS,
+//! `Keypair::to_protobuf_encoding` aquí), en uno de dos formatos JSON:
+//! `{ "privateKeyHex": … }` (Navigator y providers) o `{ "key": <base64> }`
+//! (`@rafex/galaxia-fhs-node`, Atlas). Se leen los dos y se escribe el
+//! primero, así un reemplazo conserva PeerId y DID con el mismo volumen.
 
 use std::path::Path;
 
+use base64::Engine;
 use libp2p::{identity::Keypair, PeerId};
 use serde::{Deserialize, Serialize};
 
@@ -14,6 +17,24 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 struct PersistedIdentity {
     private_key_hex: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AnyIdentity {
+    private_key_hex: Option<String>,
+    key: Option<String>,
+}
+
+fn protobuf_key(raw: &str) -> Result<Vec<u8>, String> {
+    let persisted: AnyIdentity = serde_json::from_str(raw).map_err(|e| e.to_string())?;
+    match (persisted.private_key_hex, persisted.key) {
+        (Some(hex_key), _) => hex::decode(hex_key.trim()).map_err(|e| e.to_string()),
+        (None, Some(b64)) => base64::engine::general_purpose::STANDARD
+            .decode(b64.trim())
+            .map_err(|e| e.to_string()),
+        (None, None) => Err("falta privateKeyHex o key".into()),
+    }
 }
 
 #[derive(Clone)]
@@ -57,16 +78,9 @@ impl NodeIdentity {
                 path: label.clone(),
                 source,
             })?;
-            let persisted: PersistedIdentity =
-                serde_json::from_str(&raw).map_err(|e| IdentityError::Invalid {
-                    path: label.clone(),
-                    reason: e.to_string(),
-                })?;
-            let bytes = hex::decode(persisted.private_key_hex.trim()).map_err(|e| {
-                IdentityError::Invalid {
-                    path: label.clone(),
-                    reason: e.to_string(),
-                }
+            let bytes = protobuf_key(&raw).map_err(|reason| IdentityError::Invalid {
+                path: label.clone(),
+                reason,
             })?;
             let keypair =
                 Keypair::from_protobuf_encoding(&bytes).map_err(|e| IdentityError::Invalid {
@@ -134,6 +148,25 @@ mod tests {
             identity.peer_id.to_string(),
             "12D3KooWJ1TsijH7H5F74hfAD5XishQz3sxrmAtVY37GtNd9CqYf"
         );
+    }
+
+    #[test]
+    fn reads_the_fhs_node_format_used_by_atlas() {
+        let keypair = Keypair::ed25519_from_bytes((1..=32).collect::<Vec<u8>>()).unwrap();
+        let bytes = keypair.to_protobuf_encoding().unwrap();
+        let dir = std::env::temp_dir().join(format!("galaxia-id-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join(".fhs-identity-atlas.json");
+        let b64 = base64::engine::general_purpose::STANDARD.encode(bytes);
+        std::fs::write(&path, format!("{{\"key\":\"{b64}\"}}")).unwrap();
+        let loaded = NodeIdentity::load_or_create(&path).unwrap();
+        assert_eq!(
+            loaded.peer_id.to_string(),
+            "12D3KooWJ1TsijH7H5F74hfAD5XishQz3sxrmAtVY37GtNd9CqYf"
+        );
+        // El archivo no se reescribe.
+        assert!(std::fs::read_to_string(&path).unwrap().contains("\"key\""));
+        std::fs::remove_dir_all(dir).ok();
     }
 
     #[test]
