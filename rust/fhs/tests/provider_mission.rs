@@ -172,3 +172,53 @@ async fn chat_and_tool_missions_run_end_to_end() {
     .await;
     assert!(matches!(none, Err(client::MissionError::NoBids(_))));
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn late_subscriber_gets_current_advertises_from_the_bootstrap() {
+    let atlas = start(Role::Bootstrap, vec![]);
+    let atlas_addr = listen_addr(&atlas).await;
+    let identity = NodeIdentity::from_keypair(Keypair::generate_ed25519()).unwrap();
+    let beacon = galaxia_fhs::p2p::wire::provider_beacon(
+        &identity.did,
+        galaxia_fhs::protocol::fhs::ProviderType::Satellite,
+        "tardío",
+        "",
+        &["echo.upper"],
+        vec![],
+    );
+    let did = identity.did.clone();
+    let _provider = node::start(NodeConfig {
+        role: Role::Provider,
+        agent_version: "galaxia-fhs-test".into(),
+        identity,
+        listen: vec!["/ip4/127.0.0.1/tcp/0/ws".parse().unwrap()],
+        announce: vec![],
+        bootstrap: vec![atlas_addr.clone()],
+        tls: tls::websocket_config(None, None, &[]).unwrap(),
+        advertise: Some(beacon),
+        dht_beacon: None,
+    })
+    .unwrap();
+    // Que el anuncio llegue a Atlas antes de que exista el suscriptor.
+    for _ in 0..50 {
+        if atlas.peers.get(&did).is_some() {
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
+    assert!(
+        atlas.peers.get(&did).is_some(),
+        "Atlas no recibió el anuncio"
+    );
+
+    // El siguiente anuncio periódico sería en ~30 s; debe llegar mucho antes.
+    let navigator = start(Role::Navigator, vec![atlas_addr]);
+    let started = std::time::Instant::now();
+    while navigator.peers.get(&did).is_none() {
+        assert!(
+            started.elapsed() < Duration::from_secs(8),
+            "el suscriptor tardío no recibió el anuncio vigente"
+        );
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
+}

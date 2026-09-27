@@ -405,6 +405,8 @@ pub fn start(config: NodeConfig) -> Result<NodeHandle, NodeError> {
         peer_connected: handle.peer_connected.clone(),
         offers: handle.offers.clone(),
         assigns: handle.assigns.clone(),
+        role: config.role,
+        latest_advertises: HashMap::new(),
     };
     tokio::spawn(actor.run(rx));
 
@@ -449,6 +451,10 @@ struct Actor {
     peer_connected: Arc<Notify>,
     offers: broadcast::Sender<MissionOfferMessage>,
     assigns: broadcast::Sender<MissionAssignMessage>,
+    role: Role,
+    /// Bootstrap: último anuncio firmado de cada DID (bytes y vencimiento en
+    /// ms) para reenviarlo a quien se suscribe tarde.
+    latest_advertises: HashMap<String, (Vec<u8>, i64)>,
 }
 
 impl Actor {
@@ -589,6 +595,12 @@ impl Actor {
             })) => {
                 self.handle_gossip(message);
             }
+            SwarmEvent::Behaviour(BehaviourEvent::Gossipsub(gossipsub::Event::Subscribed {
+                peer_id,
+                topic,
+            })) if self.role == Role::Bootstrap && topic.as_str() == TOPIC_NODES_ADVERTISE => {
+                self.replay_advertises(peer_id);
+            }
             SwarmEvent::Behaviour(BehaviourEvent::Identify(identify::Event::Received {
                 peer_id,
                 info,
@@ -623,6 +635,12 @@ impl Actor {
             match wire::verified_node_advertise(&message.data) {
                 Ok(advertise) if advertise.did != self.identity.did => {
                     self.peers.upsert(&advertise);
+                    if self.role == Role::Bootstrap {
+                        let expires =
+                            advertise.timestamp + i64::from(advertise.ttl_seconds.max(0)) * 1000;
+                        self.latest_advertises
+                            .insert(advertise.did.clone(), (message.data.clone(), expires));
+                    }
                 }
                 Ok(_) => {}
                 Err(reason) => tracing::warn!("anuncio descartado en {topic}: {reason:?}"),
@@ -648,6 +666,39 @@ impl Actor {
                     let _ = self.assigns.send(assign);
                 }
                 Err(reason) => tracing::warn!("asignación descartada: {reason:?}"),
+            }
+        }
+    }
+
+    /// Un suscriptor nuevo (p. ej. el Portal) recibe ya los anuncios vigentes
+    /// en vez de esperar el siguiente ciclo de 30 s de cada nodo. Se reenvían
+    /// los bytes originales: la firma del anuncio es del DID que lo emitió,
+    /// no de quien lo reenvía, así que el receptor la verifica igual.
+    fn replay_advertises(&mut self, subscriber: PeerId) {
+        let now = now_ms();
+        self.latest_advertises
+            .retain(|_, (_, expires)| *expires > now);
+        let pending: Vec<Vec<u8>> = self
+            .latest_advertises
+            .values()
+            .map(|(bytes, _)| bytes.clone())
+            .collect();
+        if pending.is_empty() {
+            return;
+        }
+        tracing::info!(
+            "reenviando {} anuncio(s) vigentes al suscriptor nuevo {subscriber}",
+            pending.len()
+        );
+        let topic = gossipsub::IdentTopic::new(TOPIC_NODES_ADVERTISE);
+        for bytes in pending {
+            if let Err(error) = self
+                .swarm
+                .behaviour_mut()
+                .gossipsub
+                .publish(topic.clone(), bytes)
+            {
+                tracing::debug!("reenvío de anuncio no enviado: {error}");
             }
         }
     }
