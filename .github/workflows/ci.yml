@@ -99,5 +99,5 @@ jobs:
       - name: IDL igual al canónico (hash del snapshot)
         run: cd fhs && sh scripts/check-idl.sh
       - run: cargo fmt --check
-      - run: cargo clippy --all-targets -p galaxia-fhs -- -D warnings
-      - run: cargo test -p galaxia-fhs
+      - run: cargo clippy --all-targets --all-features -p galaxia-fhs -- -D warnings
+      - run: cargo test --all-features -p galaxia-fhs

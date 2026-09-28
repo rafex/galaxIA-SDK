@@ -15,6 +15,7 @@ misión completa entre nodos reales.
 | `p2p::mission`, `p2p::client` | Lado Navigator: offer → bids → assign → stream (chat con deltas, tools) |
 | `p2p::provider` | Lado provider: puja, `handshake_ack`, chat/tools por el stream |
 | `p2p::peer_cache`, `p2p::wire`, `p2p::framing`, `p2p::dynamic` | Caché de anuncios con TTL, mensajes firmados, frames con prefijo varint, JSON ↔ `DynamicValue` |
+| `ipfs` (feature `ipfs`) | Cliente de la API de un Kubo local: URL solo loopback literal, token *bearer* desde archivo, sin proxy ni redirecciones, CID canónico, `add` con perfil congelado, `pin rm` idempotente, `cat` con tope |
 | `p2p::limits` | Admisión de streams entrantes: 64 por nodo, 8 por peer (`NodeHandle::admit_stream`) |
 
 ## Límites de protocolo (DEC-0095)
@@ -53,6 +54,9 @@ Para probar cambios locales del SDK sin publicarlos:
 ```sh
 cargo build --config 'patch."https://github.com/rafex/galaxIA-SDK".galaxia-fhs.path="../galaxIA-SDK/rust/fhs"'
 ```
+
+`cargo test --all-features --test kubo_live` corre contra un Kubo real si se
+definen `FHS_KUBO_API_URL` y `FHS_KUBO_TOKEN_FILE` (ver el archivo).
 
 ## Desarrollo
 
