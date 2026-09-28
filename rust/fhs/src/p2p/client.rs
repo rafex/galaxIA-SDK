@@ -249,6 +249,10 @@ pub async fn chat(
 
 pub struct ToolRequest {
     pub capability: String,
+    /// Capacidades que el provider también debe ofrecer (p. ej.
+    /// `ipfs.native.public` para leer un adjunto IPFS). Van en la oferta y la
+    /// puja debe cubrirlas todas.
+    pub extra_capabilities: Vec<String>,
     pub tool_name: String,
     pub arguments: DynamicValue,
     /// Satellite que el runtime eligió (gana si puja).
@@ -266,7 +270,9 @@ pub async fn call_tool(
         node,
         MissionRequest {
             mission_type: "tool_call",
-            required_capabilities: vec![request.capability.clone()],
+            required_capabilities: std::iter::once(request.capability.clone())
+                .chain(request.extra_capabilities.iter().cloned())
+                .collect(),
             preferred_model: None,
             preferred_provider: request.preferred_provider.clone(),
             bid_deadline: DEFAULT_BID_DEADLINE,

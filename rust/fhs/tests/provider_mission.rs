@@ -143,6 +143,7 @@ async fn chat_and_tool_missions_run_end_to_end() {
         &navigator,
         ToolRequest {
             capability: "echo.upper".into(),
+            extra_capabilities: vec![],
             tool_name: "upper".into(),
             arguments: dynamic::from_json(&json!({ "text": "fhs" })).unwrap(),
             // Con el preferido la subasta cierra en cuanto puja.
@@ -158,11 +159,27 @@ async fn chat_and_tool_missions_run_end_to_end() {
         json!({ "text": "FHS" })
     );
 
+    // Una capacidad extra que el provider no ofrece: su puja no cubre todo.
+    let partial = client::call_tool(
+        &navigator,
+        ToolRequest {
+            capability: "echo.upper".into(),
+            extra_capabilities: vec!["ipfs.native.public".into()],
+            tool_name: "upper".into(),
+            arguments: dynamic::from_json(&json!({ "text": "fhs" })).unwrap(),
+            preferred_provider: Some(star.identity.did.clone()),
+            timeout: Duration::from_secs(20),
+        },
+    )
+    .await;
+    assert!(matches!(partial, Err(client::MissionError::NoBids(_))));
+
     // Nadie puja por una capacidad desconocida.
     let none = client::call_tool(
         &navigator,
         ToolRequest {
             capability: "nadie.la.tiene".into(),
+            extra_capabilities: vec![],
             tool_name: "x".into(),
             arguments: dynamic::from_json(&json!({})).unwrap(),
             preferred_provider: None,
