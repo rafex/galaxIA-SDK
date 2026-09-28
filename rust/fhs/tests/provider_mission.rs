@@ -222,3 +222,59 @@ async fn late_subscriber_gets_current_advertises_from_the_bootstrap() {
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn changed_beacon_is_announced_right_away() {
+    let atlas = start(Role::Bootstrap, vec![]);
+    let atlas_addr = listen_addr(&atlas).await;
+    let identity = NodeIdentity::from_keypair(Keypair::generate_ed25519()).unwrap();
+    let did = identity.did.clone();
+    let beacon = |caps: &[&str]| {
+        galaxia_fhs::p2p::wire::provider_beacon(
+            &did,
+            galaxia_fhs::protocol::fhs::ProviderType::Satellite,
+            "ocr",
+            "",
+            caps,
+            vec![],
+        )
+    };
+    let provider = node::start(NodeConfig {
+        role: Role::Provider,
+        agent_version: "galaxia-fhs-test".into(),
+        identity,
+        listen: vec!["/ip4/127.0.0.1/tcp/0/ws".parse().unwrap()],
+        announce: vec![],
+        bootstrap: vec![atlas_addr.clone()],
+        tls: tls::websocket_config(None, None, &[]).unwrap(),
+        advertise: Some(beacon(&["document.ocr"])),
+        dht_beacon: None,
+    })
+    .unwrap();
+    let navigator = start(Role::Navigator, vec![atlas_addr]);
+    let caps_seen = |caps: &[&str]| {
+        navigator
+            .peers
+            .get(&did)
+            .is_some_and(|p| p.capabilities == caps)
+    };
+    let started = std::time::Instant::now();
+    while !caps_seen(&["document.ocr"]) {
+        assert!(
+            started.elapsed() < Duration::from_secs(10),
+            "sin anuncio inicial"
+        );
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
+
+    // El siguiente anuncio periódico sería en ~30 s: el cambio no espera.
+    provider.set_advertise_beacon(beacon(&["document.ocr", "ipfs.native.public"]));
+    let started = std::time::Instant::now();
+    while !caps_seen(&["document.ocr", "ipfs.native.public"]) {
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "el cambio de capacidades no se anunció de inmediato"
+        );
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
+}

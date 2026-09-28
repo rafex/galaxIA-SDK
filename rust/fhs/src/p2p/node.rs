@@ -22,6 +22,7 @@ use serde::Serialize;
 use tokio::sync::{broadcast, mpsc, oneshot, watch, Notify};
 
 use crate::p2p::identity::NodeIdentity;
+use crate::p2p::limits::{StreamLimiter, StreamPermit};
 use crate::p2p::peer_cache::{now_ms, PeerCache};
 use crate::p2p::wire::{
     self, TOPIC_MISSIONS_ASSIGN, TOPIC_MISSIONS_BID, TOPIC_MISSIONS_OFFER, TOPIC_NODES_ADVERTISE,
@@ -241,6 +242,11 @@ pub struct NodeHandle {
     assigns: broadcast::Sender<MissionAssignMessage>,
     announce: Arc<Vec<Multiaddr>>,
     listen: watch::Receiver<Vec<Multiaddr>>,
+    inbound: StreamLimiter,
+    /// Beacon vigente del anuncio GossipSub y del registro DHT (si el nodo
+    /// se anuncia); se cambia con [`NodeHandle::set_advertise_beacon`].
+    advertise_beacon: Option<Arc<watch::Sender<Beacon>>>,
+    dht_beacon: Option<Arc<watch::Sender<Beacon>>>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -309,6 +315,31 @@ impl NodeHandle {
 
     pub fn fhs_protocol() -> StreamProtocol {
         StreamProtocol::new(wire::FHS_STREAM_PROTOCOL)
+    }
+
+    /// Admite un stream FHS entrante de `peer` si hay plaza (64 por nodo, 8
+    /// por peer). Sin plaza, quien llama suelta el stream sin leerlo.
+    pub fn admit_stream(&self, peer: PeerId) -> Option<StreamPermit> {
+        match self.inbound.try_admit(peer) {
+            Ok(permit) => Some(permit),
+            Err(rejected) => {
+                tracing::warn!("[stream] rechazado {peer}: {rejected}");
+                None
+            }
+        }
+    }
+
+    /// Reemplaza el beacon que se anuncia (p. ej. al ganar o perder una
+    /// capacidad): publica un anuncio inmediato y vuelve a publicar el beacon
+    /// DHT. Los anuncios viejos caducan por su TTL. Sin efecto si el nodo no
+    /// se anuncia.
+    pub fn set_advertise_beacon(&self, beacon: Beacon) {
+        if let Some(advertise) = &self.advertise_beacon {
+            advertise.send_replace(beacon.clone());
+        }
+        if let Some(dht) = &self.dht_beacon {
+            dht.send_replace(beacon);
+        }
     }
 }
 
@@ -382,6 +413,8 @@ pub fn start(config: NodeConfig) -> Result<NodeHandle, NodeError> {
     let (commands, rx) = mpsc::channel(256);
     let (connected_tx, connected) = watch::channel(HashSet::new());
     let (listen_tx, listen_rx) = watch::channel(Vec::<Multiaddr>::new());
+    let advertise_beacon = config.advertise.map(|b| Arc::new(watch::channel(b).0));
+    let dht_beacon = config.dht_beacon.map(|b| Arc::new(watch::channel(b).0));
     let handle = NodeHandle {
         identity: config.identity.clone(),
         peers: PeerCache::default(),
@@ -395,6 +428,9 @@ pub fn start(config: NodeConfig) -> Result<NodeHandle, NodeError> {
         assigns: broadcast::channel(64).0,
         announce: Arc::new(config.announce.clone()),
         listen: listen_rx.clone(),
+        inbound: StreamLimiter::default(),
+        advertise_beacon: advertise_beacon.clone(),
+        dht_beacon: dht_beacon.clone(),
     };
 
     let actor = Actor {
@@ -417,18 +453,18 @@ pub fn start(config: NodeConfig) -> Result<NodeHandle, NodeError> {
     for addr in config.bootstrap.iter().cloned() {
         tokio::spawn(bootstrap_loop(handle.clone(), addr));
     }
-    if let Some(beacon) = config.dht_beacon {
+    if let Some(beacon) = &dht_beacon {
         tokio::spawn(dht_beacon_loop(
             handle.clone(),
-            beacon,
+            beacon.subscribe(),
             config.announce.clone(),
             listen_rx.clone(),
         ));
     }
-    if let Some(beacon) = config.advertise {
+    if let Some(beacon) = &advertise_beacon {
         tokio::spawn(advertise_loop(
             handle.clone(),
-            beacon,
+            beacon.subscribe(),
             config.announce.clone(),
             listen_rx,
         ));
@@ -833,10 +869,12 @@ fn own_addrs(
 }
 
 /// Publica el `DhtBeaconRecord` firmado al conectar con un bootstrap, cada
-/// 30 min y al recuperar la conexión con un bootstrap (que pudo reiniciar). Si falla, el Portal usa las direcciones del anuncio GossipSub.
+/// 30 min, al recuperar la conexión con un bootstrap (que pudo reiniciar) y
+/// al cambiar el beacon. Si falla, el Portal usa las direcciones del anuncio
+/// GossipSub.
 async fn dht_beacon_loop(
     handle: NodeHandle,
-    beacon: Beacon,
+    mut beacon: watch::Receiver<Beacon>,
     announce: Vec<Multiaddr>,
     listen: watch::Receiver<Vec<Multiaddr>>,
 ) {
@@ -848,9 +886,10 @@ async fn dht_beacon_loop(
         }
         // Dar tiempo a identify para llenar la tabla de Kademlia.
         tokio::time::sleep(Duration::from_secs(2)).await;
+        let current = beacon.borrow_and_update().clone();
         let record = wire::signed_dht_beacon(
             &handle.identity,
-            beacon.clone(),
+            current,
             own_addrs(&announce, &listen, peer),
         );
         handle
@@ -861,14 +900,21 @@ async fn dht_beacon_loop(
             () = handle.bootstrap_reconnected.notified() => {
                 tracing::info!("bootstrap recuperado: se vuelve a publicar el beacon DHT");
             }
+            changed = beacon.changed() => {
+                if changed.is_err() {
+                    return;
+                }
+                tracing::info!("beacon cambiado: se vuelve a publicar en el DHT");
+            }
         }
     }
 }
 
-/// Publica el `NodeAdvertise` firmado cada 30 s y tras cada conexión nueva.
+/// Publica el `NodeAdvertise` firmado cada 30 s, tras cada conexión nueva y
+/// en cuanto cambia el beacon.
 async fn advertise_loop(
     handle: NodeHandle,
-    beacon: Beacon,
+    mut beacon: watch::Receiver<Beacon>,
     announce: Vec<Multiaddr>,
     mut listen: watch::Receiver<Vec<Multiaddr>>,
 ) {
@@ -890,14 +936,16 @@ async fn advertise_loop(
             () = handle.peer_connected.notified() => {
                 tokio::time::sleep(ADVERTISE_ON_CONNECT_DELAY).await;
             }
+            changed = beacon.changed() => {
+                if changed.is_err() {
+                    return;
+                }
+            }
         }
+        let current = beacon.borrow_and_update().clone();
         let addrs = own_addrs(&announce, &listen, peer);
-        let bytes = wire::signed_node_advertise(
-            &handle.identity,
-            beacon.clone(),
-            addrs,
-            ADVERTISE_TTL_SECONDS,
-        );
+        let bytes =
+            wire::signed_node_advertise(&handle.identity, current, addrs, ADVERTISE_TTL_SECONDS);
         handle.publish(TOPIC_NODES_ADVERTISE, bytes).await;
     }
 }

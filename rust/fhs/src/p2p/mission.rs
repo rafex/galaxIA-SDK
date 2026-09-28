@@ -36,18 +36,34 @@ fn trust_rank(level: &str) -> i32 {
     }
 }
 
-/// El preferido gana si pujó; si no, trust → reputación → latencia
-/// (misma regla que `selectWinningBid` del Navigator TS, E2E-030).
+/// `true` si `offered` incluye **todas** las capacidades `required`
+/// (semántica de `required_capabilities`, DEC-0095). Es la regla de puja de
+/// los providers y el filtro de pujas del Navigator.
+pub fn covers<R: AsRef<str>, O: AsRef<str>>(required: &[R], offered: &[O]) -> bool {
+    required
+        .iter()
+        .all(|r| offered.iter().any(|o| o.as_ref() == r.as_ref()))
+}
+
+/// Descarta las pujas que no ofrecen todas las capacidades `required` (no se
+/// confía solo en la regla de puja del provider). Entre las demás, el
+/// preferido gana si pujó; si no, trust → reputación → latencia (misma regla
+/// que `selectWinningBid` del Navigator TS, E2E-030).
 pub fn select_winning_bid<'a>(
     bids: &'a [MissionBidMessage],
+    required: &[String],
     preferred: Option<&str>,
 ) -> Option<&'a MissionBidMessage> {
+    let eligible = || {
+        bids.iter()
+            .filter(|b| covers(required, &b.offered_capabilities))
+    };
     if let Some(preferred) = preferred {
-        if let Some(bid) = bids.iter().find(|b| b.provider_did == preferred) {
+        if let Some(bid) = eligible().find(|b| b.provider_did == preferred) {
             return Some(bid);
         }
     }
-    bids.iter().min_by(|a, b| {
+    eligible().min_by(|a, b| {
         trust_rank(&b.trust_level)
             .cmp(&trust_rank(&a.trust_level))
             .then(b.reputation_score.total_cmp(&a.reputation_score))
@@ -66,11 +82,12 @@ pub async fn run_mission_cycle(
         .await
         .map(|s| s.multiaddrs)
         .unwrap_or_default();
+    let required = request.required_capabilities;
     let offer = MissionOfferMessage {
         mission_id: mission_id.clone(),
         navigator_multiaddrs,
         mission_type: request.mission_type.into(),
-        required_capabilities: request.required_capabilities,
+        required_capabilities: required.clone(),
         preferred_model: request.preferred_model.unwrap_or_default(),
         bid_deadline_ms: request.bid_deadline.as_millis() as i64,
         ..Default::default()
@@ -103,7 +120,17 @@ pub async fn run_mission_cycle(
         preferred_provider = %request.preferred_provider.as_deref().unwrap_or("none"),
         "[mission] bids collected",
     );
-    let winner = select_winning_bid(&bids, request.preferred_provider.as_deref())?.clone();
+    let Some(winner) = select_winning_bid(&bids, &required, request.preferred_provider.as_deref())
+    else {
+        if !bids.is_empty() {
+            tracing::warn!(
+                "[mission] {mission_id}: {} pujas sin todas las capacidades {required:?}",
+                bids.len()
+            );
+        }
+        return None;
+    };
+    let winner = winner.clone();
 
     node.publish(
         TOPIC_MISSIONS_ASSIGN,
@@ -121,14 +148,42 @@ pub async fn run_mission_cycle(
 mod tests {
     use super::*;
 
+    const OCR: &str = "document.ocr";
+
     fn bid(did: &str, trust: &str, reputation: f32, latency: i32) -> MissionBidMessage {
         MissionBidMessage {
             provider_did: did.into(),
             trust_level: trust.into(),
             reputation_score: reputation,
             estimated_latency_ms: latency,
+            offered_capabilities: vec![OCR.into()],
             ..Default::default()
         }
+    }
+
+    fn required(caps: &[&str]) -> Vec<String> {
+        caps.iter().map(|c| (*c).to_string()).collect()
+    }
+
+    #[test]
+    fn discards_bids_that_miss_a_required_capability() {
+        let mut with_ipfs = bid("con-ipfs", "community", 0.1, 900);
+        with_ipfs
+            .offered_capabilities
+            .push("ipfs.native.public".into());
+        let bids = [bid("sin-ipfs", "standard", 0.9, 10), with_ipfs];
+        let need = required(&[OCR, "ipfs.native.public"]);
+        // Ni siendo el preferido ni teniendo mejor trust gana el parcial.
+        assert_eq!(
+            select_winning_bid(&bids, &need, Some("sin-ipfs"))
+                .unwrap()
+                .provider_did,
+            "con-ipfs"
+        );
+        assert!(select_winning_bid(&bids[..1], &need, None).is_none());
+        assert!(covers(&need, &["ipfs.native.public", OCR, "extra"]));
+        assert!(!covers(&need, &[OCR]));
+        assert!(covers::<&str, &str>(&[], &[]));
     }
 
     #[test]
@@ -138,7 +193,9 @@ mod tests {
             bid("b", "community", 0.5, 100),
         ];
         assert_eq!(
-            select_winning_bid(&bids, Some("b")).unwrap().provider_did,
+            select_winning_bid(&bids, &required(&[OCR]), Some("b"))
+                .unwrap()
+                .provider_did,
             "b"
         );
     }
@@ -151,11 +208,11 @@ mod tests {
             bid("c", "standard", 0.1, 100),
         ];
         assert_eq!(
-            select_winning_bid(&bids, Some("ausente"))
+            select_winning_bid(&bids, &required(&[OCR]), Some("ausente"))
                 .unwrap()
                 .provider_did,
             "c"
         );
-        assert!(select_winning_bid(&[], None).is_none());
+        assert!(select_winning_bid(&[], &required(&[OCR]), None).is_none());
     }
 }

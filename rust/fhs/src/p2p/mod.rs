@@ -5,6 +5,7 @@ pub mod client;
 pub mod dynamic;
 pub mod framing;
 pub mod identity;
+pub mod limits;
 pub mod mission;
 pub mod node;
 pub mod peer_cache;

@@ -192,10 +192,15 @@ pub async fn serve<P: Provider>(node: NodeHandle, provider: Arc<P>) {
         }
     };
     while let Some((peer, stream)) = incoming.next().await {
+        let Some(permit) = node.admit_stream(peer) else {
+            drop(stream);
+            continue;
+        };
         tracing::info!("[stream] conexión entrante de {peer}");
         let provider = provider.clone();
         let identity = node.identity.clone();
         tokio::spawn(async move {
+            let _permit = permit;
             if let Err(error) = run_stream(provider, identity, stream).await {
                 tracing::warn!("[stream] {peer}: {error}");
             }

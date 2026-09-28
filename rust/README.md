@@ -15,6 +15,23 @@ misión completa entre nodos reales.
 | `p2p::mission`, `p2p::client` | Lado Navigator: offer → bids → assign → stream (chat con deltas, tools) |
 | `p2p::provider` | Lado provider: puja, `handshake_ack`, chat/tools por el stream |
 | `p2p::peer_cache`, `p2p::wire`, `p2p::framing`, `p2p::dynamic` | Caché de anuncios con TTL, mensajes firmados, frames con prefijo varint, JSON ↔ `DynamicValue` |
+| `p2p::limits` | Admisión de streams entrantes: 64 por nodo, 8 por peer (`NodeHandle::admit_stream`) |
+
+## Límites de protocolo (DEC-0095)
+
+Iguales en todos los nodos, no configurables:
+
+- Frame de 33 MB (`framing::MAX_FRAME_BYTES`), comprobado sobre el prefijo de
+  longitud antes de reservar memoria; adjunto de 32 MB
+  (`framing::MAX_ATTACHMENT_BYTES`).
+- Presupuesto de decodificación de 128 MB por proceso: cada frame toma el doble
+  de su longitud mientras se lee y decodifica. Como máximo 16 frames esperando
+  y 10 s de espera; si no, se cierra el stream (`FrameError::Overloaded`).
+- 5 frames seguidos con firma inválida cierran el stream.
+- Una puja gana solo si ofrece **todas** las `required_capabilities`
+  (`mission::covers`); los providers usan la misma regla para pujar.
+- `NodeHandle::set_advertise_beacon` cambia el beacon en caliente (p. ej. al
+  ganar o perder `ipfs.native.<red>`): anuncio inmediato y beacon DHT nuevo.
 
 ## Usarlo desde otro repo
 
