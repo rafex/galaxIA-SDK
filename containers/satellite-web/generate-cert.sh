@@ -1,9 +1,11 @@
 #!/bin/sh
+# Certificado autofirmado de la página. Se reutiliza el que exista en el volumen
+# (el SAN debe cubrir la IP desde la que el teléfono abre la página).
 set -eu
 
 cert_dir=/etc/nginx/certs
-key_path="$cert_dir/curp-web.key"
-cert_path="$cert_dir/curp-web.crt"
+key_path="$cert_dir/satellite-web.key"
+cert_path="$cert_dir/satellite-web.crt"
 mkdir -p "$cert_dir"
 
 if [ -s "$key_path" ] && [ -s "$cert_path" ]; then
@@ -11,9 +13,9 @@ if [ -s "$key_path" ] && [ -s "$cert_path" ]; then
 fi
 
 openssl req -x509 -nodes -newkey rsa:2048 \
-  -days "${CURP_CERT_DAYS:-365}" \
+  -days "${SATELLITE_CERT_DAYS:-365}" \
   -keyout "$key_path" \
   -out "$cert_path" \
-  -subj "/CN=${CURP_CERT_CN}" \
-  -addext "subjectAltName=${CURP_CERT_SAN}"
+  -subj "/CN=${SATELLITE_CERT_CN}" \
+  -addext "subjectAltName=${SATELLITE_CERT_SAN}"
 chmod 0600 "$key_path"

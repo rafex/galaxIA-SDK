@@ -1,12 +1,25 @@
+# HTTPS solo. La sesión de red sale del navegador por libp2p/WSS; aquí solo se
+# sirven archivos estáticos. @CONNECT_SRC@ lo rellena el entrypoint.
 server {
     listen 443 ssl;
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
 
-    ssl_certificate     /etc/nginx/certs/curp-web.crt;
-    ssl_certificate_key /etc/nginx/certs/curp-web.key;
+    ssl_certificate     /etc/nginx/certs/satellite-web.crt;
+    ssl_certificate_key /etc/nginx/certs/satellite-web.key;
     ssl_protocols TLSv1.2 TLSv1.3;
+
+    # La llave del nodo vive en IndexedDB: la CSP cierra la puerta al XSS.
+    # style-src admite inline porque la página lleva su <style>.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' @CONNECT_SRC@; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+
+    location = /p2p-config.json {
+        add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+        try_files $uri =404;
+    }
 
     location / {
         try_files $uri $uri/ /index.html;
