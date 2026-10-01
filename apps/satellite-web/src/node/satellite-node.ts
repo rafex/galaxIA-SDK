@@ -484,6 +484,8 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
 
   await connectBootstrap();
   void advertise();
+  // La malla GossipSub tarda unos segundos en formarse: reintenta al arrancar.
+  const earlyTimers = [4_000, 10_000].map((ms) => setTimeout(() => void advertise(), ms));
   const advertiseTimer = setInterval(() => void advertise(), ADVERTISE_INTERVAL_MS);
   const maintainTimer = setInterval(() => void maintain(), MAINTENANCE_INTERVAL_MS);
   publishState();
@@ -494,6 +496,7 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
     stop: async () => {
       stopped = true;
       clearInterval(advertiseTimer);
+      earlyTimers.forEach(clearTimeout);
       clearInterval(maintainTimer);
       await node.stop();
     },

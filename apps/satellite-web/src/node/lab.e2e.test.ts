@@ -5,8 +5,8 @@
  *   FHS_LAB=1 FHS_LAB_BOOTSTRAP=/ip4/192.168.1.139/tcp/4001/tls/ws \
  *   NODE_TLS_REJECT_UNAUTHORIZED=0 npx vitest run src/node/lab.e2e.test.ts
  */
-import { readFileSync } from "node:fs";
-import { generateKeyPair } from "@libp2p/crypto/keys";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { generateKeyPair, privateKeyFromProtobuf, privateKeyToProtobuf } from "@libp2p/crypto/keys";
 import { describe, it } from "vitest";
 import { startSatelliteNode } from "./satellite-node.js";
 
@@ -21,7 +21,13 @@ describe.skipIf(!enabled)("nodo móvil contra el laboratorio", () => {
     };
     await wasm.default({ module_or_path: readFileSync(new URL("satellite_capabilities_bg.wasm", wasmDir)) });
 
-    const key = await generateKeyPair("Ed25519");
+    // FHS_LAB_KEY_FILE fija el DID entre corridas (hace falta para FHS_CALC_NODES).
+    const keyFile = process.env.FHS_LAB_KEY_FILE;
+    const key =
+      keyFile && existsSync(keyFile)
+        ? privateKeyFromProtobuf(new Uint8Array(readFileSync(keyFile)))
+        : await generateKeyPair("Ed25519");
+    if (keyFile && !existsSync(keyFile)) writeFileSync(keyFile, privateKeyToProtobuf(key), { mode: 0o600 });
     const node = await startSatelliteNode({
       bootstrap: (process.env.FHS_LAB_BOOTSTRAP ?? "").split(",").filter(Boolean),
       key,
