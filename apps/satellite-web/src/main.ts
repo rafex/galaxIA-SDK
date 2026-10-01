@@ -4,6 +4,8 @@
  * dentro de un Web Worker, sin servidor backend.
  */
 
+import "./node/ui.js";
+
 const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
 
 let nextId = 0;

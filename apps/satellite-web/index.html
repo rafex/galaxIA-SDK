@@ -65,12 +65,29 @@
       margin-top: 0.5rem;
     }
     .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    .net { border: 1px solid var(--accent); border-radius: 10px; padding: 1rem; background: var(--surface); }
+    .net .did { font-family: monospace; font-size: 0.7rem; word-break: break-all; color: var(--muted); margin: 0.5rem 0; }
+    .net ul { list-style: none; font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; }
+    .net button.secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 0.2rem 0.6rem; font-size: 0.7rem; }
     footer { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 3rem; }
   </style>
 </head>
 <body>
   <h1>Ephemeral Satellite <span class="badge">WASM</span></h1>
   <p class="subtitle">Crear y validar CURP en el teléfono: el cálculo corre como WebAssembly en un Web Worker, sin enviar tus datos.</p>
+
+  <section class="net" aria-labelledby="net-title">
+    <h2 id="net-title">Nodo de la red galaxIA</h2>
+    <p class="hint">Ofrece <code>math.arithmetic.solve</code> a la red: el cálculo corre aquí, en tu teléfono. Solo atiende misiones asignadas por el Navigator; mantén esta pantalla visible.</p>
+    <button id="net-toggle" type="button">Unirme a la red</button>
+    <div id="net-status" role="status" aria-live="polite" class="hint">sin conexión</div>
+    <div class="did">DID: <span id="net-did"></span> <button id="net-copy" type="button" class="secondary">Copiar</button></div>
+    <div id="net-stats" class="hint"></div>
+    <div id="net-last" class="hint"></div>
+    <ul id="net-log" aria-label="Registro del nodo"></ul>
+  </section>
+
+  <hr class="divider" />
 
   <section>
     <h2>Aritmética</h2>
