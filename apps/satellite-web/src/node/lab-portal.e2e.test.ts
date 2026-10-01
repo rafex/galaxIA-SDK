@@ -11,6 +11,7 @@ import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { identify } from "@libp2p/identify";
+import { ping } from "@libp2p/ping";
 import { webSockets } from "@libp2p/websockets";
 import { multiaddr } from "@multiformats/multiaddr";
 import { FHS_STREAM_PROTOCOL } from "@rafex/galaxia-fhs-protocol/constants";
@@ -39,7 +40,7 @@ describe.skipIf(!enabled)("Portal simulado contra el Navigator", () => {
       transports: [webSockets()],
       connectionEncrypters: [noise()],
       streamMuxers: [yamux()],
-      services: { identify: identify() },
+      services: { identify: identify(), ping: ping() },
     });
     const connection = await node.dial(multiaddr(process.env.FHS_LAB_NAVIGATOR ?? ""));
     const stream = await connection.newStream(FHS_STREAM_PROTOCOL);
