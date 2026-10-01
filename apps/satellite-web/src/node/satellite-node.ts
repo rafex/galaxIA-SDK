@@ -31,6 +31,7 @@ import {
 } from "@rafex/galaxia-fhs-protocol/wire";
 import { createLibp2p } from "libp2p";
 import { CAPABILITY, TOOL, solve, type SolveFn } from "./engine.js";
+import { MissionLog, ResourceSampler, type MissionRecord, type MissionSummary, type ResourceSnapshot } from "./metrics.js";
 import { AssignmentBook, ASSIGNMENT_WAIT_MS } from "./provider-core.js";
 import {
   bytesToHex,
@@ -59,9 +60,10 @@ export interface NodeState {
   bootstrapConnected: boolean;
   navigatorDid?: string;
   navigatorConnected: boolean;
-  bids: number;
-  served: number;
-  last?: { expression: string; outcome: string };
+  /** Solo datos operativos: nunca contenido de una misión. */
+  summary: MissionSummary;
+  missions: MissionRecord[];
+  resources: ResourceSnapshot;
 }
 
 export interface NodeOptions {
@@ -121,13 +123,28 @@ function isLoopbackAddr(address: string): boolean {
 export async function startSatelliteNode(options: NodeOptions): Promise<RunningNode> {
   const { key, log } = options;
   const did = didFromRaw(key.publicKey.raw);
-  const state: NodeState = { did, bootstrapConnected: false, navigatorConnected: false, bids: 0, served: 0 };
+  const missionLog = new MissionLog();
+  const sampler = new ResourceSampler();
+  sampler.start();
+  const state: NodeState = {
+    did,
+    bootstrapConnected: false,
+    navigatorConnected: false,
+    summary: missionLog.summary(),
+    missions: [],
+    resources: sampler.snapshot(),
+  };
   const book = new AssignmentBook(did);
   const bidded = new Set<string>();
   let navigator: { did: string; peerId: string; addrs: string[] } | undefined;
   let active = 0;
   let stopped = false;
-  const publishState = () => options.onState({ ...state });
+  const publishState = () => {
+    state.summary = missionLog.summary();
+    state.missions = missionLog.list(8);
+    state.resources = sampler.snapshot();
+    options.onState({ ...state });
+  };
 
   const node = await createLibp2p({
     privateKey: key,
@@ -270,7 +287,7 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
       signature,
     });
     if (await publish(TOPIC_MISSIONS_BID, encodeMessage(FhsProto.MissionBidMessageSchema, bid))) {
-      state.bids += 1;
+      missionLog.touch(offer.missionId, { phase: "puja" });
       log(`puja enviada para la misión ${offer.missionId.slice(0, 8)}`);
       publishState();
     }
@@ -291,7 +308,9 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
       assignedProvider: assign.assignedProvider,
       timestamp: Number(assign.timestamp),
     });
+    missionLog.touch(assign.missionId, { phase: "asignada" });
     log(`misión ${assign.missionId.slice(0, 8)} asignada a este nodo`);
+    publishState();
   };
 
   pubsub.subscribe(TOPIC_NODES_ADVERTISE);
@@ -406,18 +425,26 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
       await book.waitForAssign(missionId, ASSIGNMENT_WAIT_MS);
       const authorization = book.consume(missionId, navigatorDid, Date.now());
       if (!authorization.ok) {
+        missionLog.touch(missionId, { phase: "rechazada" });
         log(`misión ${missionId.slice(0, 8)} rechazada: ${authorization.reason}`);
+        publishState();
         await toolError(stream, navigatorDid, missionId, only.id, "ASSIGNMENT_REQUIRED");
         return;
       }
       // (6) Ejecutar.
+      const receivedAt = performance.now();
+      missionLog.touch(missionId, { phase: "ejecutando" });
+      publishState();
       active += 1;
       try {
         await send(stream, navigatorDid, {
           case: "dispatchAck",
           value: create(FhsProto.DispatchAckMessageSchema, { missionId, queuedAt: BigInt(Date.now()) }),
         });
+        const computeStart = performance.now();
         const outcome = await solve(expression, options.solve);
+        const computeEnd = performance.now();
+        sampler.recordCompute(computeStart, computeEnd);
         if (outcome.ok) {
           await send(stream, navigatorDid, {
             case: "toolResult",
@@ -438,9 +465,12 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
           if (outcome.code === "MATH_TIMEOUT") options.resetEngine();
           await toolError(stream, navigatorDid, missionId, only.id, outcome.code);
         }
-        state.served += 1;
-        state.last = { expression, outcome: outcome.ok ? outcome.result : outcome.code };
-        log(`misión ${missionId.slice(0, 8)}: ${expression} → ${state.last.outcome}`);
+        missionLog.touch(missionId, {
+          phase: outcome.ok ? "ok" : "error",
+          totalMs: Math.round(performance.now() - receivedAt),
+          computeMs: Math.round((computeEnd - computeStart) * 10) / 10,
+        });
+        log(`misión ${missionId.slice(0, 8)}: ${outcome.ok ? "ok" : "con error"} en ${Math.round(performance.now() - receivedAt)} ms`);
         publishState();
       } finally {
         active -= 1;
@@ -488,6 +518,7 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
   const earlyTimers = [4_000, 10_000].map((ms) => setTimeout(() => void advertise(), ms));
   const advertiseTimer = setInterval(() => void advertise(), ADVERTISE_INTERVAL_MS);
   const maintainTimer = setInterval(() => void maintain(), MAINTENANCE_INTERVAL_MS);
+  const statsTimer = setInterval(publishState, 3_000);
   publishState();
 
   return {
@@ -498,6 +529,8 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
       clearInterval(advertiseTimer);
       earlyTimers.forEach(clearTimeout);
       clearInterval(maintainTimer);
+      sampler.stop();
+      clearInterval(statsTimer);
       await node.stop();
     },
   };

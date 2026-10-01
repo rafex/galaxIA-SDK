@@ -35,7 +35,7 @@ describe.skipIf(!enabled)("nodo móvil contra el laboratorio", () => {
       resetEngine: () => undefined,
       isAccepting: () => true,
       log: (line) => console.log(`[nodo] ${line}`),
-      onState: (state) => console.log(`[estado] red=${state.bootstrapConnected} navigator=${state.navigatorConnected} pujas=${state.bids} atendidas=${state.served}`),
+      onState: (state) => console.log(`[estado] red=${state.bootstrapConnected} navigator=${state.navigatorConnected} pujas=${state.summary.bids} ok=${state.summary.ok}`),
     });
     console.log(`[nodo] DID ${node.did}`);
     await new Promise((resolve) => setTimeout(resolve, Number(process.env.FHS_LAB_SECONDS ?? "60") * 1_000));
