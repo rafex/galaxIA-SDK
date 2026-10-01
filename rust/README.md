@@ -18,6 +18,14 @@ misión completa entre nodos reales.
 | `ipfs` (feature `ipfs`) | Cliente de la API de un Kubo local: URL solo loopback literal, token *bearer* desde archivo, sin proxy ni redirecciones, CID canónico, `add` con perfil congelado, `pin rm` idempotente, `cat` con tope |
 | `p2p::limits` | Admisión de streams entrantes: 64 por nodo, 8 por peer (`NodeHandle::admit_stream`) |
 
+## Regla de despacho (DEC-0096)
+
+> **Ningún documento autoriza despachar una misión sin oferta, puja y asignación.**
+
+`client::chat` y `client::call_tool` ejecutan el ciclo completo; no se añaden variantes de
+llamada directa. Brecha conocida: `provider::serve` aún no exige una asignación válida antes de
+ejecutar una Mission.
+
 ## Límites de protocolo (DEC-0095)
 
 Iguales en todos los nodos, no configurables:
