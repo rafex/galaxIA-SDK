@@ -64,10 +64,21 @@ pub async fn dial_provider(
     provider_did: &str,
     addrs: &[String],
 ) -> Result<PeerId, MissionError> {
+    // El PeerId esperado sale del DID (misma clave): un nodo que no escucha
+    // (navegador) se alcanza por la conexión que él mismo inició.
+    let expected = crate::p2p::identity::peer_id_of_did(provider_did).map_err(|detail| {
+        MissionError::Dial {
+            provider: provider_did.into(),
+            detail,
+        }
+    })?;
+    if node.is_connected(&expected) {
+        return Ok(expected);
+    }
     if addrs.is_empty() {
         return Err(MissionError::Dial {
             provider: provider_did.into(),
-            detail: "no anunció multiaddrs".into(),
+            detail: "sin conexión directa con el nodo y sin multiaddrs anunciadas".into(),
         });
     }
     let mut ordered: Vec<&String> = addrs.iter().collect();
@@ -79,12 +90,14 @@ pub async fn dial_provider(
             continue;
         };
         if let Some(peer) = peer_id_of(&addr) {
-            if node.is_connected(&peer) {
-                return Ok(peer);
+            if peer != expected {
+                failures.push(format!("{raw} (PeerId distinto al del DID)"));
+                continue;
             }
         }
         match tokio::time::timeout(DIAL_ATTEMPT_TIMEOUT, node.dial(addr)).await {
-            Ok(Ok(peer)) => return Ok(peer),
+            Ok(Ok(peer)) if peer == expected => return Ok(peer),
+            Ok(Ok(peer)) => failures.push(format!("{raw} (conectó con otro PeerId: {peer})")),
             Ok(Err(error)) => failures.push(format!("{raw} ({error})")),
             Err(_) => failures.push(format!(
                 "{raw} (sin respuesta en {} s)",
@@ -178,6 +191,8 @@ pub async fn chat(
             preferred_model: Some(request.model.clone()).filter(|m| !m.is_empty()),
             preferred_provider: request.preferred_provider.clone(),
             bid_deadline: DEFAULT_BID_DEADLINE,
+            mission_id: None,
+            allowed_provider_dids: None,
         },
     )
     .await
@@ -257,6 +272,10 @@ pub struct ToolRequest {
     pub arguments: DynamicValue,
     /// Satellite que el runtime eligió (gana si puja).
     pub preferred_provider: Option<String>,
+    /// Id de la misión (p. ej. el de la autorización del usuario).
+    pub mission_id: Option<String>,
+    /// Solo pueden ganar estos DIDs, con conexión viva (DEC-0096).
+    pub allowed_provider_dids: Option<Vec<String>>,
     pub timeout: Duration,
 }
 
@@ -276,6 +295,8 @@ pub async fn call_tool(
             preferred_model: None,
             preferred_provider: request.preferred_provider.clone(),
             bid_deadline: DEFAULT_BID_DEADLINE,
+            mission_id: request.mission_id.clone(),
+            allowed_provider_dids: request.allowed_provider_dids.clone(),
         },
     )
     .await
@@ -306,16 +327,31 @@ pub async fn call_tool(
             let Some(envelope) = framing::read_verified(&mut stream).await? else {
                 return Err(MissionError::Closed(provider.clone()));
             };
+            if envelope.source_peer_id != provider {
+                return Err(MissionError::Unexpected {
+                    provider: provider.clone(),
+                    detail: format!(
+                        "respuesta firmada por otro DID ({})",
+                        envelope.source_peer_id
+                    ),
+                });
+            }
             match envelope.payload {
                 Some(Payload::DispatchAck(_)) => {
                     dispatch_ms = Some(started.elapsed().as_millis() as u64)
                 }
                 Some(Payload::ToolResult(result)) => {
+                    if result.mission_id != mission_id {
+                        return Err(MissionError::Unexpected {
+                            provider: provider.clone(),
+                            detail: "tool_result de otra misión".into(),
+                        });
+                    }
                     return Ok(ToolOutcome {
                         result: result.result,
                         provider: provider.clone(),
                         dispatch_ms,
-                    })
+                    });
                 }
                 Some(Payload::ToolError(error)) => {
                     return Err(MissionError::Remote {

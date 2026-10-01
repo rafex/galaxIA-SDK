@@ -148,6 +148,8 @@ async fn chat_and_tool_missions_run_end_to_end() {
             arguments: dynamic::from_json(&json!({ "text": "fhs" })).unwrap(),
             // Con el preferido la subasta cierra en cuanto puja.
             preferred_provider: Some(star.identity.did.clone()),
+            mission_id: None,
+            allowed_provider_dids: None,
             timeout: Duration::from_secs(20),
         },
     )
@@ -168,6 +170,8 @@ async fn chat_and_tool_missions_run_end_to_end() {
             tool_name: "upper".into(),
             arguments: dynamic::from_json(&json!({ "text": "fhs" })).unwrap(),
             preferred_provider: Some(star.identity.did.clone()),
+            mission_id: None,
+            allowed_provider_dids: None,
             timeout: Duration::from_secs(20),
         },
     )
@@ -183,6 +187,8 @@ async fn chat_and_tool_missions_run_end_to_end() {
             tool_name: "x".into(),
             arguments: dynamic::from_json(&json!({})).unwrap(),
             preferred_provider: None,
+            mission_id: None,
+            allowed_provider_dids: None,
             timeout: Duration::from_secs(5),
         },
     )

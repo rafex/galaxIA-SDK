@@ -19,6 +19,12 @@ pub struct MissionRequest<'a> {
     /// Provider que el runtime ya eligió: gana si pujó.
     pub preferred_provider: Option<String>,
     pub bid_deadline: Duration,
+    /// Id de la misión; por defecto uno nuevo (UUID). Permite que la
+    /// autorización del usuario y el ciclo compartan el mismo id.
+    pub mission_id: Option<String>,
+    /// Si se da, **solo cuentan** las pujas de estos DIDs y con conexión viva
+    /// (DEC-0096: restringe quién puede ganar; el ciclo no se acorta).
+    pub allowed_provider_dids: Option<Vec<String>>,
 }
 
 pub struct WinningBid {
@@ -71,12 +77,26 @@ pub fn select_winning_bid<'a>(
     })
 }
 
+/// Deja solo las pujas de DIDs permitidos que `connected` reconoce vivos.
+pub fn filter_allowed(
+    bids: Vec<MissionBidMessage>,
+    allowed: &[String],
+    connected: impl Fn(&str) -> bool,
+) -> Vec<MissionBidMessage> {
+    bids.into_iter()
+        .filter(|bid| allowed.contains(&bid.provider_did) && connected(&bid.provider_did))
+        .collect()
+}
+
 /// Publica la oferta, recoge pujas y publica la asignación del ganador.
 pub async fn run_mission_cycle(
     node: &NodeHandle,
     request: MissionRequest<'_>,
 ) -> Option<WinningBid> {
-    let mission_id = Uuid::new_v4().to_string();
+    let mission_id = request
+        .mission_id
+        .clone()
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
     let navigator_multiaddrs = node
         .status()
         .await
@@ -112,7 +132,12 @@ pub async fn run_mission_cycle(
         request.mission_type
     );
 
-    let bids = collecting.await.unwrap_or_default();
+    let mut bids = collecting.await.unwrap_or_default();
+    if let Some(allowed) = &request.allowed_provider_dids {
+        bids = filter_allowed(bids, allowed, |did| {
+            crate::p2p::identity::peer_id_of_did(did).is_ok_and(|peer| node.is_connected(&peer))
+        });
+    }
     tracing::info!(
         mission_id = %mission_id,
         bid_count = bids.len(),
@@ -163,6 +188,29 @@ mod tests {
 
     fn required(caps: &[&str]) -> Vec<String> {
         caps.iter().map(|c| (*c).to_string()).collect()
+    }
+
+    #[test]
+    fn allowed_filter_never_lets_a_disallowed_or_disconnected_bid_win() {
+        // El no permitido tiene mejor confianza, reputación y latencia.
+        let mut better = bid("no-permitido", "standard", 0.99, 1);
+        better.trust_level = "delegated".into();
+        let bids = vec![
+            better,
+            bid("permitido", "community", 0.1, 900),
+            bid("caido", "community", 0.5, 10),
+        ];
+        let allowed = vec!["permitido".to_string(), "caido".to_string()];
+        let kept = filter_allowed(bids, &allowed, |did| did != "caido");
+        assert_eq!(kept.len(), 1);
+        assert_eq!(kept[0].provider_did, "permitido");
+        assert_eq!(
+            select_winning_bid(&kept, &required(&[OCR]), Some("no-permitido"))
+                .unwrap()
+                .provider_did,
+            "permitido"
+        );
+        assert!(filter_allowed(vec![bid("x", "standard", 1.0, 1)], &[], |_| true).is_empty());
     }
 
     #[test]

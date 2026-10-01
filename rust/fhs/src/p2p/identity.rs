@@ -180,3 +180,26 @@ mod tests {
         std::fs::remove_dir_all(dir).ok();
     }
 }
+
+/// PeerId de libp2p que corresponde a un `did:key` Ed25519 (misma clave).
+pub fn peer_id_of_did(did: &str) -> Result<libp2p::PeerId, String> {
+    let raw =
+        crate::signing::did_public_key(did).map_err(|e| format!("DID inválido ({did}): {e:?}"))?;
+    let key = libp2p::identity::ed25519::PublicKey::try_from_bytes(&raw)
+        .map_err(|e| format!("clave Ed25519 inválida: {e}"))?;
+    Ok(libp2p::identity::PublicKey::from(key).to_peer_id())
+}
+
+#[cfg(test)]
+mod did_peer_tests {
+    use super::*;
+
+    #[test]
+    fn did_maps_to_the_same_peer_id_as_its_key() {
+        let identity =
+            NodeIdentity::from_keypair(libp2p::identity::Keypair::generate_ed25519()).unwrap();
+        assert_eq!(peer_id_of_did(&identity.did).unwrap(), identity.peer_id);
+        assert!(peer_id_of_did("did:web:x").is_err());
+        assert!(peer_id_of_did("did:key:z2").is_err());
+    }
+}
