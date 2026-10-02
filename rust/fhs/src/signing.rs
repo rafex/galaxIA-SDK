@@ -203,6 +203,10 @@ pub fn envelope_payload_bytes(payload: Option<&Payload>) -> Vec<u8> {
         KbDecision,
         MissionFeedback,
         ReputationUpdate,
+        AuthorizationRequested,
+        AuthorizationDecision,
+        AuthorizationResolved,
+        AuthorizationStatusRequest,
     )
 }
 
@@ -225,9 +229,9 @@ pub fn envelope_payload(envelope: &fhs::Envelope) -> String {
 }
 
 /// Tags del `oneof payload` de `Envelope` (ver `protocol/fhs-protocol.proto`).
-const ENVELOPE_PAYLOAD_TAGS: [u32; 34] = [
+const ENVELOPE_PAYLOAD_TAGS: [u32; 38] = [
     10, 11, 12, 13, 14, 20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 34, 35, 40, 50, 51, 52, 53, 54, 60,
-    61, 62, 63, 64, 65, 66, 67, 69, 70, 80,
+    61, 62, 63, 64, 65, 66, 67, 69, 70, 80, 90, 91, 92, 93,
 ];
 
 /// Bytes del payload **tal como llegaron** en el Envelope, sin re-codificar.
