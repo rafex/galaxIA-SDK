@@ -293,7 +293,7 @@ export type Envelope = Message$1<"fhs.v1.Envelope"> & {
     case: "ocrExtracted";
   } | {
     /**
-     * OBSOLETOS (SPEC-AUTH-0001): kb_recommended/kb_decision los sustituye el
+     * OBSOLETOS (SPEC-AUTHZ-0001): kb_recommended/kb_decision los sustituye el
      * mensaje authorization.* [90-94]. Las implementaciones conformes no los emiten.
      *
      * @generated from field: fhs.v1.KbRecommendedMessage kb_recommended = 67;
@@ -326,7 +326,7 @@ export type Envelope = Message$1<"fhs.v1.Envelope"> & {
     case: "reputationUpdate";
   } | {
     /**
-     * Autorización explícita por uso (SPEC-AUTH-0001, DEC-0099)  [90-99]
+     * Autorización explícita por uso (SPEC-AUTHZ-0001, DEC-0099)  [90-99]
      *
      * @generated from field: fhs.v1.AuthorizationRequestedMessage authorization_requested = 90;
      */
@@ -2869,7 +2869,7 @@ export type AuthorizationItem = Message$1<"fhs.v1.AuthorizationItem"> & {
   dataSummary: string;
 
   /**
-   * SHA-256 con separación de dominio (SPEC-AUTH-0001)
+   * SHA-256 con separación de dominio (SPEC-AUTHZ-0001)
    *
    * @generated from field: bytes payload_digest = 9;
    */

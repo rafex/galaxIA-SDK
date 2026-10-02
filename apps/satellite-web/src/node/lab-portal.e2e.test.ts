@@ -1,7 +1,7 @@
 /**
  * Prueba de laboratorio (manual): hace de Portal contra el Navigator real —
  * handshake, agentStart, chatRequest y respuesta a la tarjeta de autorización
- * (SPEC-AUTH-0001). Imprime la lista de comandos autodescubiertos
+ * (SPEC-AUTHZ-0001). Imprime la lista de comandos autodescubiertos
  * (`commands.available`, SPEC-CMD-0001).
  *
  *   FHS_LAB=1 FHS_LAB_NAVIGATOR=/ip4/192.168.1.139/tcp/4010/tls/ws/p2p/<id> \

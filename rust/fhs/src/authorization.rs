@@ -1,4 +1,4 @@
-//! Autorización explícita por uso (SPEC-AUTH-0001, DEC-0099): digests canónicos.
+//! Autorización explícita por uso (SPEC-AUTHZ-0001, DEC-0099): digests canónicos.
 //!
 //! Todo digest es `SHA-256( dominio ‖ 0x00 ‖ versión ‖ 0x00 ‖ bytes_canónicos )`,
 //! con un dominio distinto por clase de dato para que un digest no se pueda

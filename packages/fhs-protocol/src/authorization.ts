@@ -1,5 +1,5 @@
 /**
- * Autorización explícita por uso (SPEC-AUTH-0001, DEC-0099): digests canónicos.
+ * Autorización explícita por uso (SPEC-AUTHZ-0001, DEC-0099): digests canónicos.
  *
  * Apto para el navegador (sin `node:crypto`). Replica byte a byte a
  * `rust/fhs/src/authorization.rs`; ambos se prueban con los fixtures
@@ -109,7 +109,7 @@ function byteCompare(a: string, b: string): number {
   return x.length - y.length;
 }
 
-/** Forma canónica `cv1` de un valor dinámico (ver SPEC-AUTH-0001). */
+/** Forma canónica `cv1` de un valor dinámico (ver SPEC-AUTHZ-0001). */
 export function encodeValue(value: DynamicValue, out: Bytes = new Bytes()): Bytes {
   const kind = value.kind;
   switch (kind.case) {

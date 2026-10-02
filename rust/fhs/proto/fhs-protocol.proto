@@ -98,7 +98,7 @@ message Envelope {
     AssistantDeltaMessage     assistant_delta     = 64;
     AssistantCompletedMessage assistant_completed = 65;
     OcrExtractedMessage       ocr_extracted       = 66;
-    // OBSOLETOS (SPEC-AUTH-0001): kb_recommended/kb_decision los sustituye el
+    // OBSOLETOS (SPEC-AUTHZ-0001): kb_recommended/kb_decision los sustituye el
     // mensaje authorization.* [90-94]. Las implementaciones conformes no los emiten.
     KbRecommendedMessage      kb_recommended      = 67;
     // 68 se conserva reservado y no se reutiliza; el OCR es siempre automático.
@@ -110,7 +110,7 @@ message Envelope {
     // GossipSub — Reputación                             [80-89]
     ReputationUpdateMessage   reputation_update   = 80;
 
-    // Autorización explícita por uso (SPEC-AUTH-0001, DEC-0099)  [90-99]
+    // Autorización explícita por uso (SPEC-AUTHZ-0001, DEC-0099)  [90-99]
     AuthorizationRequestedMessage     authorization_requested      = 90;
     AuthorizationDecisionMessage      authorization_decision       = 91;
     AuthorizationResolvedMessage      authorization_resolved       = 92;
@@ -794,7 +794,7 @@ message KbDecisionMessage {
   bool use = 2;
 }
 
-// ── Autorización explícita por uso (SPEC-AUTH-0001, DEC-0099) ───────────────
+// ── Autorización explícita por uso (SPEC-AUTHZ-0001, DEC-0099) ───────────────
 // Todo contenido del usuario que salga del Navigator hacia otro nodo exige una
 // autorización vigente, de un solo uso, ligada a los bytes exactos (digest) y al
 // nodo exacto (DID). Portal → Navigator es una frontera de ingreso de confianza.
@@ -850,7 +850,7 @@ message AuthorizationItem {
   string policy_version = 6;
   AuthorizationDataClass   data_class  = 7;
   string data_summary   = 8;  // tipo, tamaño, caracteres; nunca el contenido
-  bytes  payload_digest = 9;  // SHA-256 con separación de dominio (SPEC-AUTH-0001)
+  bytes  payload_digest = 9;  // SHA-256 con separación de dominio (SPEC-AUTHZ-0001)
   AuthorizationDestination destination = 10;
   AuthorizationRetention   retention   = 11;
   repeated string depends_on = 12;
