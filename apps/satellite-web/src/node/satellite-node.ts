@@ -30,6 +30,7 @@ import {
   newEnvelope,
 } from "@rafex/galaxia-fhs-protocol/wire";
 import { createLibp2p } from "libp2p";
+import { CALC_COMMAND } from "./command.js";
 import { CAPABILITY, TOOL, solve, type SolveFn } from "./engine.js";
 import { MissionLog, ResourceSampler, type MissionRecord, type MissionSummary, type ResourceSnapshot } from "./metrics.js";
 import { AssignmentBook, ASSIGNMENT_WAIT_MS } from "./provider-core.js";
@@ -180,7 +181,7 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
 
   // ── Anuncio ────────────────────────────────────────────────────────────────
   const beacon = create(FhsProto.BeaconSchema, {
-    fhsVersion: "0.1",
+    fhsVersion: "0.2",
     provider: create(FhsProto.ProviderIdentitySchema, {
       id: did,
       type: FhsProto.ProviderType.SATELLITE,
@@ -190,6 +191,8 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
       tags: [`tool:${TOOL}`, "ephemeral"],
     }),
     capabilities: [create(FhsProto.CapabilityDescriptorSchema, { id: CAPABILITY })],
+    // SPEC-CMD-0001: el Navigator descubre `/calc` de este anuncio firmado.
+    commands: [CALC_COMMAND],
   });
   const beaconHash = bytesToHex(sha256(encodeMessage(FhsProto.BeaconSchema, beacon)));
 
@@ -390,7 +393,7 @@ export async function startSatelliteNode(options: NodeOptions): Promise<RunningN
     await send(stream, navigatorDid, {
       case: "handshakeAck",
       value: create(FhsProto.HandshakeAckMessageSchema, {
-        fhsVersion: "0.1",
+        fhsVersion: "0.2",
         leaseSeconds: 30,
         heartbeatSeconds: 10,
         leaseExpires: BigInt(Date.now() + 30_000),

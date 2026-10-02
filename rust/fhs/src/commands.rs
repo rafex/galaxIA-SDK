@@ -1070,6 +1070,48 @@ mod tests {
     }
 
     #[test]
+    fn golden_beacon_bytes_and_advertise_payload() {
+        let fx = fixtures();
+        if fx.is_null() {
+            return;
+        }
+        let golden = &fx["beacon_golden"];
+        let beacon = Beacon {
+            fhs_version: text(golden, "fhs_version"),
+            capabilities: caps(&golden["capabilities"])
+                .into_iter()
+                .map(|id| CapabilityDescriptor {
+                    id,
+                    ..Default::default()
+                })
+                .collect(),
+            commands: golden["commands"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|n| descriptor(&fx["descriptors"][n.as_str().unwrap()]))
+                .collect(),
+            ..Default::default()
+        };
+        assert_eq!(to_hex(&beacon.encode_to_vec()), text(golden, "hex"));
+        let message = crate::protocol::fhs::NodeAdvertiseMessage {
+            did: text(golden, "did"),
+            beacon: Some(beacon),
+            timestamp: golden["timestamp"].as_i64().unwrap(),
+            ttl_seconds: golden["ttl"].as_i64().unwrap() as i32,
+            ..Default::default()
+        };
+        assert_eq!(
+            crate::signing::beacon_sha256(message.beacon.as_ref()),
+            text(golden, "sha256")
+        );
+        assert_eq!(
+            crate::signing::node_advertise_payload(&message),
+            text(golden, "advertise_payload")
+        );
+    }
+
+    #[test]
     fn descriptor_text_does_not_change_the_fingerprint() {
         let fx = fixtures();
         if fx.is_null() {

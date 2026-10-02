@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 /* Los fixtures compartidos son JSON sin tipar; se contrastan campo a campo. */
 import { readFileSync } from "node:fs";
-import { create } from "@bufbuild/protobuf";
+import { create, toBinary } from "@bufbuild/protobuf";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { describe, expect, it } from "vitest";
 import * as Auth from "../authorization.js";
 import * as Cmd from "../commands.js";
@@ -77,6 +78,19 @@ describe("comandos autodescubiertos (fixtures compartidos con Rust)", () => {
       const commands = (c.commands as J[]).map(descriptor);
       expect(() => Cmd.validateDescriptors(commands, c.capabilities, registry), c.case).toThrow(Cmd.DescriptorError);
     }
+  });
+
+  it("codifica el Beacon con comandos con los mismos bytes que Rust (firma del anuncio)", () => {
+    const g = fixtures.beacon_golden as J;
+    const beacon = create(Fhs.BeaconSchema, {
+      fhsVersion: g.fhs_version,
+      capabilities: (g.capabilities as string[]).map((id) => create(Fhs.CapabilityDescriptorSchema, { id })),
+      commands: (g.commands as string[]).map((name) => descriptor(fixtures.descriptors[name])),
+    });
+    const bytes = toBinary(Fhs.BeaconSchema, beacon);
+    expect(Auth.toHex(bytes)).toBe(g.hex);
+    expect(Auth.toHex(sha256(bytes))).toBe(g.sha256);
+    expect(`${g.did}:${Auth.toHex(sha256(bytes))}:${g.timestamp}:${g.ttl}`).toBe(g.advertise_payload);
   });
 
   it("el texto informativo no cambia la huella", () => {
