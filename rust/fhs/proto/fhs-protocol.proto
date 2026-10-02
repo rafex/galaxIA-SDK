@@ -115,6 +115,10 @@ message Envelope {
     AuthorizationDecisionMessage      authorization_decision       = 91;
     AuthorizationResolvedMessage      authorization_resolved       = 92;
     AuthorizationStatusRequestMessage authorization_status_request = 93;
+
+    // Comandos autodescubiertos (SPEC-CMD-0001, DEC-0100)
+    CommandsAvailableMessage   commands_available    = 94;
+    CommandsListRequestMessage commands_list_request = 95;
   }
 }
 
@@ -236,6 +240,46 @@ message AgentCapability {
   string description = 3;
 }
 
+// ── Comandos de chat autodescubiertos (SPEC-CMD-0001, DEC-0100) ──────────────
+// Un nodo declara en su Beacon firmado los comandos que ofrece. El Navigator los
+// admite según el registro cerrado idl/command-capabilities.json y su política.
+// Sin mapas ni Any: codificación determinista. Los textos son texto plano.
+
+enum CommandArgType {
+  COMMAND_ARG_TYPE_UNSPECIFIED = 0;
+  COMMAND_ARG_TYPE_STRING      = 1;
+  COMMAND_ARG_TYPE_INTEGER     = 2;
+  COMMAND_ARG_TYPE_NUMBER      = 3;
+  COMMAND_ARG_TYPE_BOOLEAN     = 4;
+  COMMAND_ARG_TYPE_ENUM        = 5;
+}
+
+message CommandArg {
+  string name = 1;               // ^[a-z][a-z0-9_]{0,23}$ ; clave en los argumentos del ToolCall
+  string description = 2;        // texto plano ≤ 80 caracteres (no entra en la huella)
+  CommandArgType type = 3;
+  bool   required = 4;
+  bool   rest = 5;               // solo STRING y solo el último: toma el resto de la línea
+  int32  max_length = 6;         // solo STRING: 1..1024 caracteres Unicode
+  string allowed_chars = 7;      // solo STRING: puntos de código permitidos, ordenados y sin duplicados
+  repeated string enum_values = 8;  // solo ENUM: ≤ 16, únicos y ordenados por bytes UTF-8
+  int32  max_nesting = 9;        // solo STRING: profundidad de paréntesis 0..64
+}
+
+message CommandResult {
+  CommandArgType type = 1;       // solo NUMBER | INTEGER | BOOLEAN en v1
+  int32  max_chars = 2;          // 1..64
+}
+
+message CommandDescriptor {
+  string name          = 1;      // ^[a-z][a-z0-9-]{0,23}$ , sin "/"
+  string capability_id = 2;      // debe estar en Beacon.capabilities y en el registro
+  string tool_name     = 3;      // debe estar en registro[capability].tools
+  string summary       = 4;      // texto plano ≤ 120 caracteres (no entra en la huella)
+  repeated CommandArg args = 5;  // ≤ 4; el orden es semántico (posicional)
+  CommandResult result = 6;
+}
+
 message Beacon {
   string             fhs_version       = 1;
   ProviderIdentity   provider          = 2;
@@ -247,6 +291,7 @@ message Beacon {
   repeated CapabilityDescriptor capabilities = 8;
   repeated AgentCapability agent_capabilities = 9;
   repeated string preferred_stars      = 10;
+  repeated CommandDescriptor commands  = 11;  // SPEC-CMD-0001; fhs_version ≥ 0.2; ≤ 8, ordenados por name
 }
 
 message DynamicValue {
@@ -815,6 +860,10 @@ message AuthorizationItem {
   bool side_effects    = 16;  // la herramienta puede tener efectos externos
   bool retry           = 17;  // reintento tras un envío ambiguo
   bool implicit        = 18;  // consentimiento implícito (solo user_message al Star elegido)
+  // Ligadura de contexto de los comandos (SPEC-CMD-0001): vacíos si el ítem no es un comando.
+  string contract_fingerprint = 19;  // hex minúsculas de 64 caracteres
+  string tool_name            = 20;
+  string registry_digest      = 21;  // hex minúsculas de 64 caracteres
 }
 
 // authorization.requested — Navigator → cliente
@@ -856,3 +905,26 @@ message AuthorizationResolvedMessage {
 message AuthorizationStatusRequestMessage {
   string authorization_id = 1;
 }
+
+// ── Comandos autodescubiertos (SPEC-CMD-0001) ────────────────────────────────
+
+// Resumen de un comando vigente. Solo metadatos; nunca contenido del usuario.
+// Si hay conflicto de contrato entre nodos, solo `name`, `nodes_count` y
+// `conflict = true` son significativos (sin texto declarado por los nodos).
+message CommandSummary {
+  string name        = 1;
+  string usage       = 2;   // "/calc <expression>"
+  string summary     = 3;   // del nodo admitido con el DID menor entre los de la misma huella
+  int32  nodes_count = 4;
+  bool   conflict    = 5;
+}
+
+// commands.available — Navigator → cliente: tras el handshake y en cada cambio de
+// la tabla (altas y bajas por TTL). `revision` es monótono dentro de la sesión.
+message CommandsAvailableMessage {
+  int64 revision = 1;
+  repeated CommandSummary commands = 2;
+}
+
+// commands.list_request — cliente → Navigator (reconexión)
+message CommandsListRequestMessage {}

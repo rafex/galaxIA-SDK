@@ -6,6 +6,7 @@
 //!   misiones del lado Navigator y del lado provider.
 //! - [`ipfs`] (feature `ipfs`): cliente de la API de un Kubo local.
 pub mod authorization;
+pub mod commands;
 #[cfg(feature = "ipfs")]
 pub mod ipfs;
 pub mod p2p;

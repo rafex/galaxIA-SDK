@@ -23,7 +23,7 @@ pub const TOPIC_MISSIONS_BID: &str = "fhs/v1/missions/bid";
 pub const TOPIC_MISSIONS_ASSIGN: &str = "fhs/v1/missions/assign";
 pub const TOPIC_REPUTATION_UPDATE: &str = "fhs/v1/reputation/update";
 pub const FHS_STREAM_PROTOCOL: &str = "/fhs/v1/0.1.0";
-pub const FHS_WIRE_VERSION: &str = "0.1";
+pub const FHS_WIRE_VERSION: &str = "0.2";
 
 /// Beacon con el que el Portal reconoce a un Navigator (`provider.id == "navigator"`).
 pub fn navigator_beacon(name: &str) -> Beacon {

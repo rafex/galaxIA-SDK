@@ -7,6 +7,10 @@ if test -f "$canonical"; then
     echo "proto/fhs-protocol.proto no coincide con el IDL canónico: $canonical" >&2
     exit 1
   }
+  cmp -s "$(dirname "$canonical")/command-capabilities.json" proto/command-capabilities.json || {
+    echo "proto/command-capabilities.json no coincide con el registro canónico" >&2
+    exit 1
+  }
   echo "FHS IDL: OK (comparación con canonical)"
 else
   test -f proto/fhs-protocol.proto.sha256

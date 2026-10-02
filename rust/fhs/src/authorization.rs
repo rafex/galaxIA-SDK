@@ -174,6 +174,10 @@ pub fn batch_digest(
         for dep in deps {
             push_bytes(&mut body, dep.as_bytes());
         }
+        // Ligadura de contexto de los comandos (SPEC-CMD-0001); vacíos si no lo es.
+        push_bytes(&mut body, item.contract_fingerprint.as_bytes());
+        push_bytes(&mut body, item.tool_name.as_bytes());
+        push_bytes(&mut body, item.registry_digest.as_bytes());
     }
     framed(DOMAIN_BATCH, &body)
 }
@@ -350,9 +354,9 @@ mod tests {
                 )),
             ),
             (
-                "command_args:expression",
-                hex(&value_digest(
-                    DOMAIN_COMMAND_ARGS,
+                "command_args:calc",
+                hex(&crate::commands::command_args_digest(
+                    "arithmetic_solve",
                     &object(vec![("expression", string("(12+8)*3^2/4"))]),
                 )
                 .unwrap()),
@@ -422,6 +426,33 @@ mod tests {
                             ..Default::default()
                         },
                     ],
+                )),
+            ),
+            (
+                "batch:command_item",
+                hex(&batch_digest(
+                    "auth-2",
+                    "conv-1",
+                    "turn-2",
+                    1_790_000_000_000,
+                    &[AuthorizationItem {
+                        item_id: "calc-0".into(),
+                        capability_id: "math.arithmetic.solve".into(),
+                        provider_did: "did:key:zPHONE".into(),
+                        payload_digest: crate::commands::command_args_digest(
+                            "arithmetic_solve",
+                            &object(vec![("expression", string("(12+8)*3^2/4"))]),
+                        )
+                        .unwrap()
+                        .to_vec(),
+                        data_class: 4,
+                        destination: 2,
+                        retention: 1,
+                        contract_fingerprint: "ab".repeat(32),
+                        tool_name: "arithmetic_solve".into(),
+                        registry_digest: "cd".repeat(32),
+                        ..Default::default()
+                    }],
                 )),
             ),
         ];

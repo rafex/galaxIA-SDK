@@ -1,0 +1,16 @@
+{
+  "registry_version": 1,
+  "entries": {
+    "math.arithmetic.solve": {
+      "tools": ["arithmetic_solve"],
+      "admission": "open",
+      "error_codes": {
+        "MATH_DIVISION_BY_ZERO": "División por cero",
+        "MATH_NOT_FINITE": "El resultado no es un número finito",
+        "MATH_SYNTAX": "La expresión no es válida",
+        "MATH_TIMEOUT": "El cálculo tardó demasiado",
+        "MATH_LIMIT": "La expresión supera los límites del nodo"
+      }
+    }
+  }
+}

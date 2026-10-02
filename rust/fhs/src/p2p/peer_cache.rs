@@ -23,6 +23,11 @@ pub struct PeerEntry {
     pub capabilities: Vec<String>,
     pub last_seen_ms: i64,
     pub expires_at_ms: i64,
+    /// `timestamp + ttl` del anuncio (sin la gracia de la caché ni la hora de
+    /// recepción): un anuncio reinyectado no la extiende.
+    pub advert_expires_ms: i64,
+    /// `timestamp` del último anuncio aceptado de este DID.
+    pub advert_timestamp_ms: i64,
 }
 
 impl PeerEntry {
@@ -96,6 +101,10 @@ fn peer_type(provider_type: i32) -> &'static str {
 /// perdido en la malla no debe sacarlo de la caché).
 const TTL_GRACE: Duration = Duration::from_secs(30);
 
+/// Desfase máximo del reloj de un anuncio y TTL máximo (SPEC-CMD-0001).
+pub const MAX_ADVERT_SKEW: Duration = Duration::from_secs(120);
+pub const MAX_ADVERT_TTL_SECONDS: i64 = 120;
+
 /// Tras arrancar, un provider puede tardar hasta un ciclo de anuncios (30 s)
 /// en aparecer. Durante esta ventana una búsqueda vacía espera en vez de fallar.
 pub const WARM_UP: Duration = Duration::from_secs(35);
@@ -133,17 +142,43 @@ impl PeerCache {
         }
     }
 
-    /// Registra un anuncio ya verificado. Devuelve false si no tiene DID.
+    /// Registra un anuncio ya verificado. Devuelve false si no tiene DID, si no
+    /// es fresco (reloj ±120 s, TTL 1..=120) o si su `timestamp` no es
+    /// estrictamente mayor al último aceptado de ese DID (anti-replay).
     pub fn upsert(&self, message: &NodeAdvertiseMessage) -> bool {
+        self.upsert_at(message, now_ms())
+    }
+
+    pub fn upsert_at(&self, message: &NodeAdvertiseMessage, now: i64) -> bool {
         if message.did.is_empty() {
+            return false;
+        }
+        let ttl = i64::from(message.ttl_seconds);
+        if !(1..=MAX_ADVERT_TTL_SECONDS).contains(&ttl)
+            || message.timestamp.abs_diff(now) > MAX_ADVERT_SKEW.as_millis() as u64
+        {
+            return false;
+        }
+        let Some(advert_expires_ms) = ttl
+            .checked_mul(1000)
+            .and_then(|ms| message.timestamp.checked_add(ms))
+        else {
+            return false;
+        };
+        if self
+            .inner
+            .read()
+            .expect("peer cache")
+            .get(&message.did)
+            .is_some_and(|known| message.timestamp <= known.advert_timestamp_ms)
+        {
             return false;
         }
         let beacon = message.beacon.clone().unwrap_or_default();
         let mut capabilities: Vec<String> =
             beacon.capabilities.iter().map(|c| c.id.clone()).collect();
         capabilities.extend(beacon.agent_capabilities.iter().map(|c| c.id.clone()));
-        let now = now_ms();
-        let ttl_ms = i64::from(message.ttl_seconds.max(1)) * 1000 + TTL_GRACE.as_millis() as i64;
+        let ttl_ms = ttl * 1000 + TTL_GRACE.as_millis() as i64;
         let entry = PeerEntry {
             did: message.did.clone(),
             peer_type: peer_type(
@@ -159,7 +194,10 @@ impl PeerCache {
             reputation_score: 0.5,
             capabilities,
             last_seen_ms: now,
-            expires_at_ms: now + ttl_ms,
+            // La vida la fija el anuncio, no la recepción.
+            expires_at_ms: message.timestamp + ttl_ms,
+            advert_expires_ms,
+            advert_timestamp_ms: message.timestamp,
         };
         self.inner
             .write()
@@ -193,6 +231,15 @@ impl PeerCache {
     }
     pub fn get(&self, did: &str) -> Option<PeerEntry> {
         self.live().into_iter().find(|p| p.did == did)
+    }
+    /// Como `get`, con la hora dada (pruebas deterministas).
+    pub fn get_at(&self, did: &str, now: i64) -> Option<PeerEntry> {
+        self.inner
+            .read()
+            .expect("peer cache")
+            .get(did)
+            .filter(|entry| entry.expires_at_ms > now)
+            .cloned()
     }
 
     pub fn known_peers(&self) -> Vec<KnownPeer> {
@@ -284,6 +331,7 @@ mod tests {
                 ..Default::default()
             }),
             ttl_seconds: 60,
+            timestamp: now_ms(),
             trust_level: "community".into(),
             ..Default::default()
         }
@@ -302,6 +350,54 @@ mod tests {
         );
         cache.expire_all_for_test();
         assert!(cache.all().is_empty());
+    }
+
+    #[test]
+    fn rejects_stale_future_replayed_and_out_of_range_adverts() {
+        let cache = PeerCache::default();
+        let now = 1_790_000_000_000;
+        let mut advert = advertise("did:key:zKB", ProviderType::Satellite);
+        advert.timestamp = now;
+        assert!(cache.upsert_at(&advert, now));
+
+        // Un anuncio igual o más viejo (reinyección) no se acepta ni extiende la vida.
+        assert!(!cache.upsert_at(&advert, now + 10_000));
+        let mut older = advert.clone();
+        older.timestamp = now - 1_000;
+        assert!(!cache.upsert_at(&older, now + 10_000));
+        let entry = cache.get_at("did:key:zKB", now).unwrap();
+        assert_eq!(entry.advert_expires_ms, now + 60_000);
+
+        // Reloj fuera de ±120 s, en cualquier sentido.
+        let mut stale = advertise("did:key:zOld", ProviderType::Satellite);
+        stale.timestamp = now - 121_000;
+        assert!(!cache.upsert_at(&stale, now));
+        let mut future = advertise("did:key:zFut", ProviderType::Satellite);
+        future.timestamp = now + 121_000;
+        assert!(!cache.upsert_at(&future, now));
+
+        // TTL fuera de 1..=120 y desbordamientos.
+        for ttl in [0, -1, 121, i32::MAX] {
+            let mut bad = advertise("did:key:zTtl", ProviderType::Satellite);
+            bad.timestamp = now;
+            bad.ttl_seconds = ttl;
+            assert!(!cache.upsert_at(&bad, now), "ttl {ttl}");
+        }
+        let mut overflow = advertise("did:key:zOvf", ProviderType::Satellite);
+        overflow.timestamp = i64::MAX;
+        assert!(!cache.upsert_at(&overflow, i64::MAX));
+
+        // Un anuncio posterior sí avanza la vida.
+        let mut newer = advert.clone();
+        newer.timestamp = now + 30_000;
+        assert!(cache.upsert_at(&newer, now + 30_000));
+        assert_eq!(
+            cache
+                .get_at("did:key:zKB", now + 30_000)
+                .unwrap()
+                .advert_expires_ms,
+            now + 90_000
+        );
     }
 
     #[test]
