@@ -1,8 +1,10 @@
 /**
  * Prueba de laboratorio (manual): hace de Portal contra el Navigator real —
- * handshake, agentStart, chatRequest y respuesta a la tarjeta de autorización.
+ * handshake, agentStart, chatRequest y respuesta a la tarjeta de autorización
+ * (SPEC-AUTH-0001). Imprime la lista de comandos autodescubiertos
+ * (`commands.available`, SPEC-CMD-0001).
  *
- *   FHS_LAB=1 FHS_LAB_NAVIGATOR=/ip4/192.168.1.139/tcp/4010/tls/ws \
+ *   FHS_LAB=1 FHS_LAB_NAVIGATOR=/ip4/192.168.1.139/tcp/4010/tls/ws/p2p/<id> \
  *   FHS_LAB_MESSAGE='/calc (12+8)*3^2/4' FHS_LAB_DECISION=allow \
  *   NODE_TLS_REJECT_UNAUTHORIZED=0 npx vitest run src/node/lab-portal.e2e.test.ts --disable-console-intercept
  */
@@ -27,11 +29,11 @@ const SCHEMAS = {
   handshake: FhsProto.HandshakeMessageSchema,
   agentStart: FhsProto.AgentStartMessageSchema,
   chatRequest: FhsProto.ChatRequestMessageSchema,
-  kbDecision: FhsProto.KbDecisionMessageSchema,
+  authorizationDecision: FhsProto.AuthorizationDecisionMessageSchema,
 } as const;
 
 describe.skipIf(!enabled)("Portal simulado contra el Navigator", () => {
-  it("pide /calc y responde a la autorización", async () => {
+  it("envía el mensaje (p. ej. un comando) y responde a la autorización", async () => {
     const key = await generateKeyPair("Ed25519");
     const did = didFromRaw(key.publicKey.raw);
     const node = await createLibp2p({
@@ -61,10 +63,10 @@ describe.skipIf(!enabled)("Portal simulado contra el Navigator", () => {
     await send({
       case: "handshake",
       value: create(FhsProto.HandshakeMessageSchema, {
-        fhsVersion: "0.1",
+        fhsVersion: "0.2",
         listenAddrs: [],
         beacon: create(FhsProto.BeaconSchema, {
-          fhsVersion: "0.1",
+          fhsVersion: "0.2",
           provider: create(FhsProto.ProviderIdentitySchema, { id: did, type: FhsProto.ProviderType.MULTI, visibility: FhsProto.Visibility.COMMUNITY, name: "Portal simulado" }),
         }),
       }) as never,
@@ -97,10 +99,26 @@ describe.skipIf(!enabled)("Portal simulado contra el Navigator", () => {
         buffer = buffer.slice(decoded.bytesConsumed);
         const payload = decoded.envelope.payload;
         if (payload.case === "assistantDelta") text += payload.value.delta;
-        else if (payload.case === "kbRecommended") {
-          console.log(`[portal] AUTORIZACIÓN: ${payload.value.candidates.map((c) => `${c.providerName}: ${c.description}`).join(" | ")}`);
+        else if (payload.case === "commandsAvailable") {
+          const list = payload.value.commands.map((c) => (c.conflict ? `/${c.name} (conflicto)` : `${c.usage} [${c.nodesCount}]`));
+          console.log(`[portal] COMANDOS (rev ${payload.value.revision}): ${list.join(" | ") || "ninguno"}`);
+        } else if (payload.case === "authorizationRequested") {
+          const request = payload.value;
+          for (const item of request.items) {
+            console.log(
+              `[portal] AUTORIZACIÓN ${item.itemId}: ${item.capabilityId} → ${item.providerName} · ${item.dataSummary}` +
+                (item.toolName ? ` · tool=${item.toolName} huella=${item.contractFingerprint.slice(0, 12)}` : ""),
+            );
+          }
           console.log(`[portal] respondo ${decision ? "AUTORIZAR" : "RECHAZAR"}`);
-          await send({ case: "kbDecision", value: create(FhsProto.KbDecisionMessageSchema, { missionId: session, use: decision }) as never });
+          await send({
+            case: "authorizationDecision",
+            value: create(FhsProto.AuthorizationDecisionMessageSchema, {
+              authorizationId: request.authorizationId,
+              batchDigest: request.batchDigest,
+              decisions: request.items.map((item) => ({ itemId: item.itemId, allow: decision })),
+            }) as never,
+          });
         } else if (payload.case === "assistantCompleted") {
           console.log(`[portal] RESPUESTA: ${text.replace(/\n+/g, " / ")}`);
           console.log(`[portal] PROCEDENCIA: modelo=${payload.value.provenance?.model} herramientas=${payload.value.provenance?.toolProviderIds.join(",") || "ninguna"} datosExportados=${payload.value.provenance?.dataExported}`);
