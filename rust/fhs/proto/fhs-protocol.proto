@@ -755,43 +755,43 @@ message KbDecisionMessage {
 // nodo exacto (DID). Portal → Navigator es una frontera de ingreso de confianza.
 
 enum AuthorizationDataClass {
-  AUTH_DATA_CLASS_UNSPECIFIED = 0;
-  AUTH_DATA_CLASS_USER_MESSAGE       = 1;  // el mensaje literal del usuario al Star elegido
-  AUTH_DATA_CLASS_DERIVED_TEXT       = 2;  // texto derivado: OCR, fragmentos de KB/RAG
-  AUTH_DATA_CLASS_DOCUMENT           = 3;  // los bytes de un archivo
-  AUTH_DATA_CLASS_COMMAND_ARGS       = 4;  // argumentos de un comando (/calc)
-  AUTH_DATA_CLASS_QUERY              = 5;  // una pregunta enviada a una KB o al RAG
-  AUTH_DATA_CLASS_TOOL_ARGS          = 6;  // argumentos de una herramienta pedida por el LLM
-  AUTH_DATA_CLASS_TOOL_OUTPUT_TO_LLM = 7;  // resultado de una herramienta que vuelve al LLM
+  AUTHORIZATION_DATA_CLASS_UNSPECIFIED = 0;
+  AUTHORIZATION_DATA_CLASS_USER_MESSAGE       = 1;  // el mensaje literal del usuario al Star elegido
+  AUTHORIZATION_DATA_CLASS_DERIVED_TEXT       = 2;  // texto derivado: OCR, fragmentos de KB/RAG
+  AUTHORIZATION_DATA_CLASS_DOCUMENT           = 3;  // los bytes de un archivo
+  AUTHORIZATION_DATA_CLASS_COMMAND_ARGS       = 4;  // argumentos de un comando (/calc)
+  AUTHORIZATION_DATA_CLASS_QUERY              = 5;  // una pregunta enviada a una KB o al RAG
+  AUTHORIZATION_DATA_CLASS_TOOL_ARGS          = 6;  // argumentos de una herramienta pedida por el LLM
+  AUTHORIZATION_DATA_CLASS_TOOL_OUTPUT_TO_LLM = 7;  // resultado de una herramienta que vuelve al LLM
 }
 
 enum AuthorizationDestination {
-  AUTH_DESTINATION_UNSPECIFIED = 0;
-  AUTH_DESTINATION_LOCAL       = 1;
-  AUTH_DESTINATION_NETWORK     = 2;
-  AUTH_DESTINATION_COMMUNITY   = 3;
-  AUTH_DESTINATION_EXTERNAL    = 4;
-  AUTH_DESTINATION_PUBLIC_IPFS = 5;  // red pública: no se puede garantizar borrado ni acceso
+  AUTHORIZATION_DESTINATION_UNSPECIFIED = 0;
+  AUTHORIZATION_DESTINATION_LOCAL       = 1;
+  AUTHORIZATION_DESTINATION_NETWORK     = 2;
+  AUTHORIZATION_DESTINATION_COMMUNITY   = 3;
+  AUTHORIZATION_DESTINATION_EXTERNAL    = 4;
+  AUTHORIZATION_DESTINATION_PUBLIC_IPFS = 5;  // red pública: no se puede garantizar borrado ni acceso
 }
 
 enum AuthorizationRetention {
-  AUTH_RETENTION_UNSPECIFIED = 0;
-  AUTH_RETENTION_EPHEMERAL   = 1;  // de mejor esfuerzo en IPFS público
-  AUTH_RETENTION_REUSE       = 2;
-  AUTH_RETENTION_PERMANENT   = 3;
+  AUTHORIZATION_RETENTION_UNSPECIFIED = 0;
+  AUTHORIZATION_RETENTION_EPHEMERAL   = 1;  // de mejor esfuerzo en IPFS público
+  AUTHORIZATION_RETENTION_REUSE       = 2;
+  AUTHORIZATION_RETENTION_PERMANENT   = 3;
 }
 
 enum AuthorizationOutcome {
-  AUTH_OUTCOME_UNSPECIFIED = 0;
-  AUTH_OUTCOME_PENDING     = 1;
-  AUTH_OUTCOME_ALLOWED     = 2;
-  AUTH_OUTCOME_DENIED      = 3;
-  AUTH_OUTCOME_EXPIRED     = 4;
-  AUTH_OUTCOME_CANCELLED   = 5;
-  AUTH_OUTCOME_CONSUMED    = 6;  // el Grant se consumió; el envío está en curso
-  AUTH_OUTCOME_SENT        = 7;
-  AUTH_OUTCOME_FAILED      = 8;
-  AUTH_OUTCOME_PARTIAL     = 9;  // solo en el lote: unos ítems sí, otros no
+  AUTHORIZATION_OUTCOME_UNSPECIFIED = 0;
+  AUTHORIZATION_OUTCOME_PENDING     = 1;
+  AUTHORIZATION_OUTCOME_ALLOWED     = 2;
+  AUTHORIZATION_OUTCOME_DENIED      = 3;
+  AUTHORIZATION_OUTCOME_EXPIRED     = 4;
+  AUTHORIZATION_OUTCOME_CANCELLED   = 5;
+  AUTHORIZATION_OUTCOME_CONSUMED    = 6;  // el Grant se consumió; el envío está en curso
+  AUTHORIZATION_OUTCOME_SENT        = 7;
+  AUTHORIZATION_OUTCOME_FAILED      = 8;
+  AUTHORIZATION_OUTCOME_PARTIAL     = 9;  // solo en el lote: unos ítems sí, otros no
 }
 
 // Un envío concreto que se pide autorizar. Los bytes ya existen (modelo por
