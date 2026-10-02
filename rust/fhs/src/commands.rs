@@ -502,9 +502,7 @@ pub fn classify_line(line: &str) -> LineKind<'_> {
     let Some(body) = line.strip_prefix('/') else {
         return LineKind::Plain;
     };
-    let end = body
-        .find([' ', '\t'])
-        .unwrap_or(body.len());
+    let end = body.find([' ', '\t']).unwrap_or(body.len());
     LineKind::Command {
         name: body[..end].to_ascii_lowercase(),
         rest: &body[end..],
