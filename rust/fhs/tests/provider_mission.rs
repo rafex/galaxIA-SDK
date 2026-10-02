@@ -128,6 +128,7 @@ async fn chat_and_tool_missions_run_end_to_end() {
             tools: vec![],
             model: String::new(),
             preferred_provider: None,
+            allowed_provider_dids: None,
             timeout: Duration::from_secs(20),
         },
         |delta| deltas.push(delta.to_string()),

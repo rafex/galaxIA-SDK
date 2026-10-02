@@ -173,6 +173,9 @@ pub struct ChatRequest {
     pub model: String,
     /// Star que el runtime eligió (gana si puja).
     pub preferred_provider: Option<String>,
+    /// Con una lista, solo esos DIDs pueden ganar (autorización por uso: el
+    /// dato solo va al nodo autorizado, nunca a un sustituto).
+    pub allowed_provider_dids: Option<Vec<String>>,
     pub timeout: Duration,
 }
 
@@ -192,7 +195,7 @@ pub async fn chat(
             preferred_provider: request.preferred_provider.clone(),
             bid_deadline: DEFAULT_BID_DEADLINE,
             mission_id: None,
-            allowed_provider_dids: None,
+            allowed_provider_dids: request.allowed_provider_dids.clone(),
         },
     )
     .await
