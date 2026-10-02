@@ -33,6 +33,10 @@
     "./authorization": {
       "import": "./dist/authorization.js",
       "types": "./dist/authorization.d.ts"
+    },
+    "./commands": {
+      "import": "./dist/commands.js",
+      "types": "./dist/commands.d.ts"
     }
   },
   "repository": {

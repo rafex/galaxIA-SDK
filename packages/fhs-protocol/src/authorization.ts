@@ -6,7 +6,13 @@
  * compartidos de `galaxIA/idl/fixtures/authorization-digests.json`.
  */
 import { sha256 } from "@noble/hashes/sha2.js";
-import type { AuthorizationItem, DynamicValue } from "./generated/fhs-protocol_pb.js";
+import { create } from "@bufbuild/protobuf";
+import {
+  DynamicObjectSchema,
+  DynamicValueSchema,
+  type AuthorizationItem,
+  type DynamicValue,
+} from "./generated/fhs-protocol_pb.js";
 
 export const DIGEST_VERSION = "1";
 
@@ -164,15 +170,29 @@ export function valueDigest(domain: string, value: DynamicValue): Uint8Array {
   return framed(domain, encodeValue(value).done());
 }
 
+/** Digest `command_args`: cv1 de `{ args, tool }` (lo que lleva el ToolCall). */
+export function commandArgsDigest(tool: string, args: DynamicValue): Uint8Array {
+  const value = create(DynamicValueSchema, {
+    kind: {
+      case: "objectValue",
+      value: create(DynamicObjectSchema, {
+        fields: { args, tool: create(DynamicValueSchema, { kind: { case: "stringValue", value: tool } }) },
+      }),
+    },
+  });
+  return valueDigest(DOMAIN_COMMAND_ARGS, value);
+}
+
 export interface BatchFields {
   authorizationId: string;
   conversationId: string;
   turnId: string;
   expiresAt: bigint | number;
-  items: readonly Pick<
+  items: readonly (Pick<
     AuthorizationItem,
     "itemId" | "payloadDigest" | "providerDid" | "capabilityId" | "dataClass" | "destination" | "retention" | "dependsOn"
-  >[];
+  > &
+    Partial<Pick<AuthorizationItem, "contractFingerprint" | "toolName" | "registryDigest">>)[];
 }
 
 /** Digest del lote: identifica exactamente lo que se le muestra al usuario. */
@@ -195,6 +215,10 @@ export function batchDigest(batch: BatchFields): Uint8Array {
     const deps = [...item.dependsOn].sort(byteCompare);
     body.len(deps.length);
     for (const dep of deps) body.text(dep);
+    // Ligadura de contexto de los comandos (SPEC-CMD-0001); vacíos si no lo es.
+    body.text(item.contractFingerprint ?? "");
+    body.text(item.toolName ?? "");
+    body.text(item.registryDigest ?? "");
   }
   return framed(DOMAIN_BATCH, body.done());
 }

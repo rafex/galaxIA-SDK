@@ -26,7 +26,7 @@ describe("digests de autorización (paridad con Rust)", () => {
       Auth.toHex(Auth.ipfsDigest("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", new TextEncoder().encode("contenido"))),
     ).toBe(c["ipfs:cid"]);
     expect(Auth.toHex(Auth.chunksDigest(Auth.DOMAIN_DERIVED_TEXT, ["primer fragmento", "segundo ñandú"]))).toBe(c["derived_text:chunks"]);
-    expect(Auth.toHex(Auth.valueDigest(Auth.DOMAIN_COMMAND_ARGS, obj({ expression: str("(12+8)*3^2/4") })))).toBe(c["command_args:expression"]);
+    expect(Auth.toHex(Auth.commandArgsDigest("arithmetic_solve", obj({ expression: str("(12+8)*3^2/4") })))).toBe(c["command_args:calc"]);
     const mixed = obj({
       zeta: create(Fhs.DynamicValueSchema, { kind: { case: "integerValue", value: -5n } }),
       alfa: create(Fhs.DynamicValueSchema, { kind: { case: "numberValue", value: 1.5 } }),
@@ -47,6 +47,28 @@ describe("digests de autorización (paridad con Rust)", () => {
       ],
     });
     expect(Auth.toHex(batch)).toBe(c["batch:two_items"]);
+    const commandBatch = Auth.batchDigest({
+      authorizationId: "auth-2",
+      conversationId: "conv-1",
+      turnId: "turn-2",
+      expiresAt: 1_790_000_000_000n,
+      items: [
+        {
+          itemId: "calc-0",
+          capabilityId: "math.arithmetic.solve",
+          providerDid: "did:key:zPHONE",
+          payloadDigest: Auth.commandArgsDigest("arithmetic_solve", obj({ expression: str("(12+8)*3^2/4") })),
+          dataClass: 4,
+          destination: 2,
+          retention: 1,
+          dependsOn: [],
+          contractFingerprint: "ab".repeat(32),
+          toolName: "arithmetic_solve",
+          registryDigest: "cd".repeat(32),
+        },
+      ],
+    });
+    expect(Auth.toHex(commandBatch)).toBe(c["batch:command_item"]);
   });
 
   it("rechaza lo que no es canonizable y no depende del orden de claves", () => {
