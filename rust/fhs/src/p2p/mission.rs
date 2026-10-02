@@ -77,14 +77,19 @@ pub fn select_winning_bid<'a>(
     })
 }
 
-/// Deja solo las pujas de DIDs permitidos que `connected` reconoce vivos.
+/// Deja solo las pujas de DIDs permitidos que se pueden alcanzar: con conexión
+/// viva (`connected`, el caso del navegador, que no escucha) o con multiaddrs
+/// que `dial_provider` marcará verificando que el PeerId sea el del DID.
 pub fn filter_allowed(
     bids: Vec<MissionBidMessage>,
     allowed: &[String],
     connected: impl Fn(&str) -> bool,
 ) -> Vec<MissionBidMessage> {
     bids.into_iter()
-        .filter(|bid| allowed.contains(&bid.provider_did) && connected(&bid.provider_did))
+        .filter(|bid| {
+            allowed.contains(&bid.provider_did)
+                && (connected(&bid.provider_did) || !bid.provider_multiaddrs.is_empty())
+        })
         .collect()
 }
 
@@ -211,6 +216,11 @@ mod tests {
             "permitido"
         );
         assert!(filter_allowed(vec![bid("x", "standard", 1.0, 1)], &[], |_| true).is_empty());
+        // Un nodo desconectado pero con direcciones se marca después de ganar.
+        let mut dialable = bid("marcable", "community", 0.5, 10);
+        dialable.provider_multiaddrs = vec!["/ip4/10.0.0.1/tcp/4002/tls/ws".into()];
+        let kept = filter_allowed(vec![dialable], &["marcable".to_string()], |_| false);
+        assert_eq!(kept.len(), 1);
     }
 
     #[test]
